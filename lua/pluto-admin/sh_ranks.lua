@@ -50,6 +50,7 @@ admin.users = {
 	["STEAM_0:0:69089132"] = "mod", -- agent
 	["STEAM_0:0:76071854"] = "developer", -- squibble
 	["STEAM_0:0:35214868"] = "mod", -- ekksdee
+	["STEAM_0:1:41818825"] = "mod", -- rusty
 }
 
 admin.hardcoded = {}
