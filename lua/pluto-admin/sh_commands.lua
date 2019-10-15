@@ -27,8 +27,10 @@ admin.commands = {
 	},
 	slay = {
 		args = {
-			Name = "Player",
-			Type = "userid",
+			{
+				Name = "Player",
+				Type = "userid",
+			},
 		},
 		Do = function(user, info)
 			
@@ -40,7 +42,7 @@ admin.commands = {
 
 			ply:Kill()
 		end,
-	}
+	},
 	map = {
 		args = {
 			{
