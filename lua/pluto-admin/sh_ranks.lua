@@ -16,6 +16,7 @@ admin.ranks = {
 		permissions = {
 			ban = true,
 			map = true,
+			rdm = true,
 		}
 	},
 	donator = {
@@ -44,9 +45,14 @@ for usergroup, info in pairs(admin.ranks) do
 	}, "pluto-admin")
 end
 
+for group in pairs(admin.ranks) do
+	if (admin.hasperm(group, "rdm")) then
+		Damagelog:AddUser(group, 4, true)
+	end
+end
+
 hook.Add("PlayerAuthed", "pluto_admin", function(ply)
 	local usergroup = admin.users[ply:SteamID()] or "user"
-	local u = admin.ranks[usergroup]
 
 	ply:SetUserGroup(usergroup)
 end)
