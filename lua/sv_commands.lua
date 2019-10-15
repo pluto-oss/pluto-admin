@@ -1,19 +1,3 @@
-function admin.hasperm(usergroup, perm)
-	usergroup = CAMI.GetUsergroup(usergroup)
-	local last
-	while (usergroup and usergroup ~= last) do
-		local mygroup = admin.ranks[usergroup.Name]
-		if (mygroup and mygroup.permissions and mygroup.permissions[perm]) then
-			return true
-		end
-
-		last = usergroup
-		usergroup = CAMI.GetUsergroup(usergroup.Inherits)
-	end
-
-	return false
-end
-
 util.AddNetworkString "pluto-admin-cmd"
 
 net.Receive("pluto-admin-cmd", function(len, cl)

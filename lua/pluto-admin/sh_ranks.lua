@@ -24,6 +24,22 @@ admin.ranks = {
 	},
 }
 
+function admin.hasperm(usergroup, perm)
+	usergroup = CAMI.GetUsergroup(usergroup)
+	local last
+	while (usergroup and usergroup ~= last) do
+		local mygroup = admin.ranks[usergroup.Name]
+		if (mygroup and mygroup.permissions and mygroup.permissions[perm]) then
+			return true
+		end
+
+		last = usergroup
+		usergroup = CAMI.GetUsergroup(usergroup.Inherits)
+	end
+
+	return false
+end
+
 admin.users = {
 	["STEAM_0:0:44950009"] = "developer", -- meepen
 	["STEAM_0:1:27537959"] = "mod",
