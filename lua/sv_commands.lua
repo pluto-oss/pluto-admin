@@ -3,7 +3,6 @@ function admin.hasperm(usergroup, perm)
 	local last
 	while (usergroup and usergroup ~= last) do
 		local mygroup = admin.ranks[usergroup.Name]
-		PrintTable(mygroup or {})
 		if (mygroup and mygroup.permissions and mygroup.permissions[perm]) then
 			return true
 		end

@@ -14,6 +14,7 @@ admin.commands = {
 				Type = "string",
 			}]]
 		},
+		-- TODO(meep): NOT HERE IN FUTURE!!
 		Do = function(user, info)
 			local ply = player.GetBySteamID64(info.Player)
 

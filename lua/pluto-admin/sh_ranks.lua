@@ -25,6 +25,8 @@ admin.ranks = {
 admin.users = {
 	["STEAM_0:0:44950009"] = "developer",
 	["STEAM_0:1:27537959"] = "mod",
+	["STEAM_0:0:113902473"] = "developer",
+	["STEAM_0:0:35214868"] = "mod",
 }
 
 admin.hardcoded = {}
