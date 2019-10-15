@@ -54,6 +54,7 @@ admin.users = {
 	["STEAM_0:1:41818825"] = "mod", -- rusty
 	["STEAM_0:0:28467572"] = "mod", -- francoise
 	["STEAM_0:0:30028117"] = "mod", -- hound
+	["STEAM_0:0:61790383"] = "advisor", -- kat
 }
 
 admin.hardcoded = {}
