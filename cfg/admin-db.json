@@ -1,0 +1,7 @@
+{
+	"type": "mysql",
+	"database": "pluto_admin",
+	"user": "pluto_admin",
+	"password": "",
+	"host": ""
+}
