@@ -33,7 +33,6 @@ admin.commands = {
 			},
 		},
 		Do = function(user, info)
-			
 			local ply = player.GetBySteamID64(info.Player)
 
 			if (not IsValid(ply) or not ply:Alive()) then

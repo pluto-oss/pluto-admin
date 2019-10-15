@@ -17,6 +17,7 @@ admin.ranks = {
 			ban = true,
 			map = true,
 			rdm = true,
+			slay = true,
 		}
 	},
 	donator = {
