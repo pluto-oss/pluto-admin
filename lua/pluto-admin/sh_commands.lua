@@ -25,6 +25,22 @@ admin.commands = {
 			ply:Ban(info.Time, true)
 		end
 	},
+	slay = {
+		args = {
+			Name = "Player",
+			Type = "userid",
+		},
+		Do = function(user, info)
+			
+			local ply = player.GetBySteamID64(info.Player)
+
+			if (not IsValid(ply) or not ply:Alive()) then
+				return
+			end
+
+			ply:Kill()
+		end,
+	}
 	map = {
 		args = {
 			{
