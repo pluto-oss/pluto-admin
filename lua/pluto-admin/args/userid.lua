@@ -31,7 +31,7 @@ local function GetData(text)
 			}
 		end
 
-		if (ply:Nick():find(text, 1, true)) then
+		if (ply:Nick():lower():find(text:lower(), 1, true)) then
 			ret[#ret + 1] = {
 				Friendly = ply:Nick(),
 				SteamID = ply:SteamID64()
