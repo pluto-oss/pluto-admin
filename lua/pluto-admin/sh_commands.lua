@@ -24,5 +24,16 @@ admin.commands = {
 
 			ply:Ban(info.Time, true)
 		end
-	}
+	},
+	map = {
+		args = {
+			{
+				Name = "MapName",
+				Type = "string",
+			}
+		},
+		Do = function(user, info)
+			RunConsoleCommand("changelevel", info.MapName)
+		end,
+	},
 }

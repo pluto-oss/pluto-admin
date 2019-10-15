@@ -15,6 +15,7 @@ admin.ranks = {
 		inherits = "user",
 		permissions = {
 			ban = true,
+			map = true,
 		}
 	},
 	donator = {
