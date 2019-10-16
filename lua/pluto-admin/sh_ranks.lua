@@ -1,15 +1,19 @@
 admin.ranks = {
 	developer = {
 		inherits = "advisor",
+		color = Color(237, 34, 11),
 	},
 	advisor = {
 		inherits = "leadadmin",
+		color = Color(255, 114, 70),
 	},
 	leadadmin = {
 		inherits = "mod",
+		color = Color(255, 106, 214),
 	},
 	mod = {
 		inherits = "supportstaff",
+		color = Color(112, 166, 255),
 	},
 	supportstaff = {
 		inherits = "user",
@@ -18,12 +22,20 @@ admin.ranks = {
 			map = true,
 			rdm = true,
 			slay = true,
-		}
+		},
+		color = Color(131, 231, 225),
 	},
 	donator = {
 		inherits = "user",
 	},
 }
+
+hook.Add("TTTGetPlayerColor", "pluto_admin", function(ply)
+	local rank = admin.ranks[ply:GetUserGroup()]
+	if (rank and rank.color) then
+		return rank.color
+	end
+end)
 
 function admin.hasperm(usergroup, perm)
 	usergroup = CAMI.GetUsergroup(usergroup)
