@@ -1,5 +1,5 @@
 concommand.Add("admin", function(ply, cmd, args)
-local cmd = args[1]
+	local cmd = args[1]
 
 	local cmdtype = admin.commands[cmd]
 	if (not cmdtype) then
