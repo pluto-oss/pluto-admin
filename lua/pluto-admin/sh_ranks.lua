@@ -69,6 +69,7 @@ admin.users = {
 	["STEAM_0:0:61790383"] = "advisor", -- kat
 	["STEAM_0:0:120144587"] = "mod", -- mae
 	["STEAM_0:1:71412544"] = "mod", -- shootr
+	["STEAM_0:0:142848003"] = "advisor", -- leo
 }
 
 admin.hardcoded = {}
