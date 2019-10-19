@@ -85,7 +85,7 @@ for usergroup, info in pairs(admin.ranks) do
 end
 
 for group in pairs(admin.ranks) do
-	if (admin.hasperm(group, "rdm")) then
+	if (admin.hasperm(group, "rdm") and Damagelog) then
 		Damagelog:AddUser(group, 4, true)
 	end
 end
