@@ -3,7 +3,8 @@ admin.ranks = {
 		inherits = "designer",
 		color = Color(237, 34, 11),
 		permissions = {
-			setrank = "developer"
+			setrank = "developer",
+			ac = true
 		},
 	},
 	designer = {
