@@ -60,6 +60,7 @@ loadall {
 	},
 	Client = {
 		"cl_cmd.lua",
+		"cl_commands.lua",
 	},
 	Resources = {
 

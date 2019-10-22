@@ -1,3 +1,16 @@
+local color_name = Color(255, 0, 0)
+local color_text = Color(230, 230, 230, 255)
+local color_important = Color(0, 255, 0)
+
+local function name(x)
+	local ply = player.GetBySteamID64(x)
+	if (IsValid(ply)) then
+		return ply:Nick()
+	end
+
+	return x
+end
+
 admin.commands = {
 	ban = {
 		args = {
@@ -17,6 +30,7 @@ admin.commands = {
 		-- TODO(meep): NOT HERE IN FUTURE!!
 		Do = function(user, info)
 			admin.ban(info.Player, info.Reason, info.Time, user)
+			admin.chatf(color_name, user:Nick(), color_text, " has banned ", color_name, info.Player)
 			return true
 		end
 	},
@@ -35,6 +49,8 @@ admin.commands = {
 			end
 
 			ply:Kill()
+
+			admin.chatf(color_name, user:Nick(), color_text, " has slain ", color_name, info.Player)
 			return true
 		end,
 	},
@@ -49,6 +65,7 @@ admin.commands = {
 			timer.Simple(2, function()
 				RunConsoleCommand("changelevel", info.MapName)
 			end)
+			admin.chatf(color_name, user:Nick(), color_text, " changed the map to ", color_important, info.MapName)
 			return true
 		end,
 	},
@@ -77,6 +94,7 @@ admin.commands = {
 
 			if (usergroup.Name == info.Rank) then
 				admin.setrank(info.Player, info.Rank)
+				admin.chatf(color_name, user:Nick(), color_text, " set the rank of ", color_name, name(info.Player), color_text, " to ", color_important, info.Rank)
 				return true
 			end
 		end,
