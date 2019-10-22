@@ -99,4 +99,47 @@ admin.commands = {
 			end
 		end,
 	},
+	slaynr = {
+		args = {
+			{
+				Name = "Player",
+				Type = "userid",
+			}
+		},
+		Do = function(user, info)
+			local ply = player.GetBySteamID64(info.Player)
+
+			if (IsValid(ply)) then
+				ply.Slays = (ply.Slays or 0) + 1
+				return true
+			end
+		end,
+	}
 }
+
+hook.Add("TTTRemoveIneligiblePlayers", "admin_slaynr", function(plys)
+	local remove = {}
+
+	for i = #plys, 1, -1 do
+		if (plys[i].Slays and plys[i].Slays > 0) then
+			remove[#remove + 1] = i
+		end
+	end
+
+	if (#plys - #remove < GetConVar "ttt_minimum_players":GetInt()) then
+		return
+	end
+
+	for _, idx in ipairs(remove) do
+		local ply = plys[idx]
+		table.remove(plys, idx)
+	end
+end)
+
+hook.Add("TTTBeginRound", "admin_slaynr", function()
+	for k, v in pairs(player.GetAll()) do
+		if (v.Slays) then
+			v.Slays = math.max(v.Slays - 1, 0)
+		end
+	end
+end)

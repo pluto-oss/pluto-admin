@@ -19,6 +19,7 @@ admin.ranks = {
 		permissions = {
 			setrank = "leadadmin",
 			ban_custom = true,
+			slay = true,
 		},
 	},
 	leadadmin = {
@@ -35,7 +36,7 @@ admin.ranks = {
 			ban = true,
 			map = true,
 			rdm = true,
-			slay = true,
+			slaynr = true,
 		},
 		color = Color(131, 231, 225),
 	},
