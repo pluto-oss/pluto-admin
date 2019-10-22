@@ -2,10 +2,24 @@ admin.ranks = {
 	developer = {
 		inherits = "advisor",
 		color = Color(237, 34, 11),
+		permissions = {
+			setrank = "developer"
+		},
+	},
+	designer = {
+		inherits = "advisor",
+		color = color_black,
+		permissions = {
+			setrank = false,
+		},
 	},
 	advisor = {
 		inherits = "leadadmin",
 		color = Color(255, 114, 70),
+		permissions = {
+			setrank = "leadadmin",
+			ban_custom = true,
+		},
 	},
 	leadadmin = {
 		inherits = "mod",
@@ -42,8 +56,8 @@ function admin.hasperm(usergroup, perm)
 	local last
 	while (usergroup and usergroup ~= last) do
 		local mygroup = admin.ranks[usergroup.Name]
-		if (mygroup and mygroup.permissions and mygroup.permissions[perm]) then
-			return true
+		if (mygroup and mygroup.permissions and mygroup.permissions[perm] ~= nil) then
+			return mygroup.permissions[perm]
 		end
 
 		last = usergroup
@@ -52,28 +66,6 @@ function admin.hasperm(usergroup, perm)
 
 	return false
 end
-
-admin.users = {
-	["STEAM_0:0:44950009"] = "developer", -- meepen
-	["STEAM_0:1:27537959"] = "mod", -- pumpkin
-	["STEAM_0:0:42138604"] = "developer", -- lingling
-	["STEAM_0:0:113902473"] = "developer", -- crossboy
-	["STEAM_0:0:35214868"] = "mod", -- ekksdee
-	["STEAM_0:0:58378410"] = "mod", --loveyy
-	["STEAM_0:1:27119610"] = "advisor", -- zero
-	["STEAM_0:0:69089132"] = "mod", -- agent
-	["STEAM_0:0:76071854"] = "developer", -- squibble
-	["STEAM_0:0:35214868"] = "mod", -- ekksdee
-	["STEAM_0:1:41818825"] = "mod", -- rusty
-	["STEAM_0:0:28467572"] = "mod", -- francoise
-	["STEAM_0:0:30028117"] = "mod", -- hound
-	["STEAM_0:0:61790383"] = "advisor", -- kat
-	["STEAM_0:0:120144587"] = "mod", -- mae
-	["STEAM_0:1:71412544"] = "mod", -- shootr
-	["STEAM_0:0:142848003"] = "advisor", -- leo
-	["STEAM_0:1:49799454"] = "advisor", -- suess
-	["STEAM_0:0:79515806"] = "mod", -- inferno
-}
 
 admin.hardcoded = {}
 
@@ -89,9 +81,3 @@ for group in pairs(admin.ranks) do
 		Damagelog:AddUser(group, 4, true)
 	end
 end
-
-hook.Add("PlayerAuthed", "pluto_admin", function(ply)
-	local usergroup = admin.users[ply:SteamID()] or "user"
-
-	ply:SetUserGroup(usergroup)
-end)

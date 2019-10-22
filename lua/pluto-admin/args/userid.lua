@@ -1,7 +1,7 @@
 local ARG = admin.args.userid or {}
 admin.args.userid = ARG
 
-local function GetData(text)
+function ARG:GetData(text)
 	if (text:StartWith "STEAM_") then
 		return {
 			{
@@ -44,14 +44,14 @@ end
 
 function ARG:AutoComplete(text, cmd)
 	local r = {}
-	for _, item in pairs(GetData(text)) do
+	for _, item in pairs(self:GetData(text)) do
 		r[#r + 1] = item.Friendly
 	end
 	return r
 end
 
 function ARG:NetworkWrite(text)
-	local data = GetData(text)
+	local data = self:GetData(text)
 	if (#data > 1) then
 		return true
 	end

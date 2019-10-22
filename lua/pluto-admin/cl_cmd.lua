@@ -5,8 +5,16 @@ concommand.Add("admin", function(ply, cmd, args)
 	if (not cmdtype) then
 		return print("failed, no command!")
 	end
-	net.Start "pluto-admin-cmd"
 
+	for i, argtype in ipairs(cmdtype.args) do
+		local arg = admin.args[argtype.Type]
+		if (not args[i + 1]) then
+			print("failed, no " .. argtype.Name:lower())
+			return
+		end
+	end
+
+	net.Start "pluto-admin-cmd"
 	admin.args.cmd:NetworkWrite(args[1])
 
 	for i, argtype in ipairs(cmdtype.args) do
@@ -15,7 +23,7 @@ concommand.Add("admin", function(ply, cmd, args)
 			error("error arg " .. i)
 		end
 	end
-		
+
 	net.SendToServer()
 end, function(cmd, str)
 	local args = {}
