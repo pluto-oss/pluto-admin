@@ -65,20 +65,28 @@ end
 
 function admin.getrank(ply, cb)
 	local nick = ply
-	if (TypeID(ply) == TYPE_ENTITY and IsValid(ply)) then
-		ply.AdminJoin = os.time()
+	ply = pluto.db.steamid64(ply)
+
+	local p = player.GetBySteamID64(ply)
+	if (IsValid(p)) then
+		p.AdminJoin = os.time()
 		nick = ply:Nick()
 	end
 
 	pluto.db.transact({
-		{ "INSERT INTO pluto_player_info (steamid, displayname, last_server) VALUES (?, ?, INET_ATON(?)) ON DUPLICATE KEY UPDATE displayname = VALUE(displayname), last_server = VALUE(last_server), last_join = CURRENT_TIMESTAMP", {pluto.db.steamid64(ply), nick, game.GetIPAddress():match"^[^:]+"} },
-		{ "SELECT rank FROM pluto_player_info WHERE steamid = ?", {pluto.db.steamid64(ply)}, function(err, q)
+		{ "INSERT INTO pluto_player_info (steamid, displayname, last_server) VALUES (?, ?, INET_ATON(?)) ON DUPLICATE KEY UPDATE displayname = VALUE(displayname), last_server = VALUE(last_server), last_join = CURRENT_TIMESTAMP", {ply, nick, game.GetIPAddress():match"^[^:]+"} },
+		{ "SELECT rank FROM pluto_player_info WHERE steamid = ?", {ply}, function(err, q)
 			return cb(not err and q:getData()[1].rank or "user")
 		end }
 	})
 end
 
 function admin.updatetime(ply)
+	if (not ply.AdminJoin) then
+		ply.AdminJoin = os.time()
+		return
+	end
+
 	local add = os.time() - ply.AdminJoin
 	ply.AdminJoin = os.time()
 
