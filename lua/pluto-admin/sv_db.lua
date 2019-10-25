@@ -125,7 +125,7 @@ end)
 
 function admin.ban(ply, reason, minutes, banner)
 	local steamid = pluto.db.steamid64(ply)
-	banner = banner and pluto.db.steamid64(banner) or 0
+	banner = banner ~= 0 and banner and pluto.db.steamid64(banner) or 0
 
 	pluto.db.query("CALL pluto_ban(?, ?, ?, ?)", {steamid, banner, reason, math.floor(minutes * 60)}, print)
 
