@@ -70,7 +70,7 @@ function admin.getrank(ply, cb)
 	local p = player.GetBySteamID64(ply)
 	if (IsValid(p)) then
 		p.AdminJoin = os.time()
-		nick = ply:Nick()
+		nick = p:Nick()
 	end
 
 	pluto.db.transact({
