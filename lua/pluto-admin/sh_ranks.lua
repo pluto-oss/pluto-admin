@@ -1,6 +1,10 @@
 admin.ranks = {
 	developer = {
-		inherits = "designer",
+		PrintName = "Developer",
+		inherits = "advisor",
+		aliases = {
+			"dev",
+		},
 		color = Color(237, 34, 11),
 		permissions = {
 			setrank = "developer",
@@ -8,41 +12,91 @@ admin.ranks = {
 		},
 	},
 	designer = {
-		inherits = "advisor",
-		color = color_black,
-		permissions = {
-			setrank = false,
+		PrintName = "Designer",
+		inherits = "donator",
+		aliases = {
+			"squibble",
 		},
+		color = color_black,
+		permissions = {},
 	},
 	advisor = {
+		PrintName = "Advisor",
 		inherits = "leadadmin",
+		aliases = {
+			"adv",
+		},
 		color = Color(255, 114, 70),
 		permissions = {
 			setrank = "leadadmin",
-			ban_custom = true,
-			slay = true,
+			tradeban = true,
 		},
 	},
 	leadadmin = {
-		inherits = "mod",
+		PrintName = "Lead Admin",
+		inherits = "admin",
+		aliases = {
+			"lead",
+			"la",
+			"ladmin",
+			"leada",
+		},
+		permissions = {
+			ban_custom = true,
+			kick = true,
+			["goto"] = true,
+		},
 		color = Color(255, 106, 214),
 	},
+	admin = {
+		PrintName = "Administrator",
+		inherits = "mod",
+		aliases = {
+			"administrator",
+			"ad",
+		},
+		permissions = {
+			slay = true,
+			bring = true,
+		},
+		color = color_black,
+	},
 	mod = {
+		PrintName = "Moderator",
 		inherits = "supportstaff",
+		aliases = {
+			"moderator",
+			"m",
+		},
 		color = Color(112, 166, 255),
 	},
 	supportstaff = {
+		PrintName = "Support Staff",
 		inherits = "user",
+		aliases = {
+			"ss",
+			"sstaff",
+			"support staff",
+			"support",
+		},
 		permissions = {
-			ban = true,
-			map = true,
 			rdm = true,
+
+			ban = true,
+			map = true, -- only for now, need to fix bugs preventing round end
+			mute = true,
+			gag = true,
+			afk = true,
 			slaynr = true,
 		},
 		color = Color(131, 231, 225),
 	},
 	donator = {
+		PrintName = "Donator",
 		inherits = "user",
+		permissions = {
+			votemap = true,
+		}
 	},
 }
 
