@@ -2,6 +2,15 @@ local ARG = admin.args.userid or {}
 admin.args.userid = ARG
 
 function ARG:GetData(text)
+	if (TypeID(text) == TYPE_ENTITY) then
+		return {
+			{
+				Friendly = text:Nick(),
+				SteamID = text:SteamID64()
+			}
+		}
+	end
+
 	if (text:StartWith "STEAM_") then
 		return {
 			{
@@ -61,4 +70,13 @@ end
 
 function ARG:NetworkRead()
 	return net.ReadString()
+end
+
+function ARG:CreateInputPanel(arginfo, prnt)
+	return {
+		Panel = prnt:AddTextEntry(arginfo.Name or arginfo.Type, true, ""),
+		GetValue = function(s)
+			return self:GetData(s.Panel:GetValue())[1].SteamID
+		end
+	}
 end

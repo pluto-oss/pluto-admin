@@ -12,3 +12,7 @@ end
 function ARG:NetworkRead()
 	return net.ReadString()
 end
+
+function ARG:CreateInputPanel(arginfo, prnt)
+	return prnt:AddTextEntry(arginfo.Name or arginfo.Type, true, "")
+end

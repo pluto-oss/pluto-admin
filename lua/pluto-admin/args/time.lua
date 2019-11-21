@@ -29,3 +29,12 @@ end
 function ARG:NetworkRead()
 	return net.ReadUInt(32)
 end
+
+function ARG:CreateInputPanel(arginfo, prnt)
+	return {
+		Panel = prnt:AddTextEntry(arginfo.Name or arginfo.Type, true, ""),
+		GetValue = function(s)
+			return GetData(s.Panel:GetValue())[1].Time
+		end
+	}
+end
