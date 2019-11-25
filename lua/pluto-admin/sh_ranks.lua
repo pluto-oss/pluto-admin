@@ -98,6 +98,12 @@ admin.ranks = {
 			votemap = true,
 		}
 	},
+	user = {
+		PrintName = "User",
+		permissions = {
+			po = true,
+		}
+	},
 }
 
 hook.Add("TTTGetPlayerColor", "pluto_admin", function(ply)

@@ -15,7 +15,7 @@ function ARG:GetData(text)
 		return {
 			{
 				Friendly = text,
-				SteamID = text
+				SteamID = util.SteamIDTo64(text)
 			}
 		}
 	end
@@ -23,8 +23,8 @@ function ARG:GetData(text)
 	if (tonumber(text) and util.SteamIDFrom64(text) ~= "STEAM_0:0:0") then
 		return {
 			{
-				Friendly = text,
-				SteamID = util.SteamIDFrom64(text)
+				Friendly = util.SteamIDFrom64(text),
+				SteamID = text
 			}
 		}
 	end
@@ -69,7 +69,11 @@ function ARG:NetworkWrite(text)
 end
 
 function ARG:NetworkRead()
-	return net.ReadString()
+	local r = net.ReadString()
+	if (not tonumber(r)) then
+		return 0
+	end
+	return r
 end
 
 function ARG:CreateInputPanel(arginfo, prnt)

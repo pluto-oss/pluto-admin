@@ -51,7 +51,7 @@ hook.Add("PlutoDatabaseInitialize", "pluto_admin_init", function(db)
 				last_server INT UNSIGNED NOT NULL,
 				displayname VARCHAR(64) NOT NULL
 			)]]
-		}
+		},
 	}:wait(true)
 end)
 
