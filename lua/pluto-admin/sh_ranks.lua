@@ -45,6 +45,7 @@ admin.ranks = {
 			ban_custom = true,
 			kick = true,
 			["goto"] = true,
+			unban = true,
 		},
 		color = Color(255, 106, 214),
 	},

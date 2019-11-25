@@ -1,5 +1,62 @@
+local function template(t)
+	return {
+		{
+			[[CREATE TABLE IF NOT EXISTS pluto_]] .. t .. [[ (
+				idx INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+				effected_user BIGINT UNSIGNED NOT NULL,
+				reason VARCHAR(255) NOT NULL,
+				acting_user BIGINT UNSIGNED NOT NULL,
+				endtime TIMESTAMP NULL,
+				starttime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+				updating_user BIGINT UNSIGNED,
+				updatetime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+				finished BOOLEAN NOT NULL DEFAULT FALSE,
+				finishing_user BIGINT UNSIGNED,
+				finish_reason VARCHAR(255),
+
+				INDEX USING HASH(effected_user)
+			)]]
+		},
+		{
+			[[CREATE PROCEDURE IF NOT EXISTS pluto_]] .. t .. [[(
+				user BIGINT UNSIGNED,
+				actor BIGINT UNSIGNED,
+				_reason VARCHAR(255),
+				seconds INT UNSIGNED
+			) BEGIN
+				DECLARE i INT UNSIGNED DEFAULT 0;
+				DECLARE _endtime TIMESTAMP DEFAULT NULL;
+
+				SELECT idx INTO i FROM pluto_]] .. t .. [[ WHERE effected_user = user AND NOT (finished = TRUE OR endtime IS NOT NULL AND endtime <= CURRENT_TIMESTAMP);
+
+				IF seconds != 0 THEN
+					SET _endtime = TIMESTAMPADD(SECOND, seconds, CURRENT_TIMESTAMP);
+				END IF;
+
+				IF i = 0 THEN
+					INSERT INTO pluto_]] .. t .. [[ (effected_user, reason, acting_user, endtime) VALUES (user, _reason, actor, _endtime);
+				ELSE
+					UPDATE pluto_]] .. t .. [[ SET updating_user = banner, reason = _reason, endtime = _endtime WHERE idx = i;
+				END IF;
+			END]]
+		},
+	}
+end
+
+local function templates(t, ...)
+	for i = 1, select("#", ...) do
+		for _, v in ipairs(template((select(i, ...)))) do
+			table.insert(t, v)
+		end
+	end
+
+	return t
+end
+
 hook.Add("PlutoDatabaseInitialize", "pluto_admin_init", function(db)
-	pluto.db.transact {
+	pluto.db.transact(templates({
 		{
 			[[CREATE TABLE IF NOT EXISTS pluto_bans (
 				idx INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -42,6 +99,20 @@ hook.Add("PlutoDatabaseInitialize", "pluto_admin_init", function(db)
 			END]]
 		},
 		{
+			[[CREATE PROCEDURE IF NOT EXISTS pluto_unban(user BIGINT UNSIGNED,
+				banner BIGINT UNSIGNED,
+				_reason VARCHAR(255)
+			) BEGIN
+				DECLARE i INT UNSIGNED DEFAULT 0;
+
+				SELECT idx INTO i FROM pluto_bans WHERE banned_user = user AND NOT (unbanned = TRUE OR endtime IS NOT NULL AND endtime <= CURRENT_TIMESTAMP);
+
+				IF i != 0 THEN
+					UPDATE pluto_bans SET unbanned_by = banner, unban_reason = _reason, unbanned = TRUE WHERE idx = i;
+				END IF;
+			END]]
+		},
+		{
 			[[CREATE TABLE IF NOT EXISTS pluto_player_info (
 				steamid BIGINT UNSIGNED NOT NULL PRIMARY KEY,
 				rank VARCHAR(16) NOT NULL DEFAULT "user",
@@ -52,7 +123,7 @@ hook.Add("PlutoDatabaseInitialize", "pluto_admin_init", function(db)
 				displayname VARCHAR(64) NOT NULL
 			)]]
 		},
-	}:wait(true)
+	}, "mute", "gag")):wait(true)
 end)
 
 function admin.formatban(reason, banner, length)

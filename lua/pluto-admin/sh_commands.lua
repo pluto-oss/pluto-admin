@@ -141,12 +141,13 @@ admin.commands = {
 			pluto.db.query("SELECT CAST(banned_user as CHAR) as banned_user, CAST(banner as CHAR) as banner, bantime, endtime, reason,\
 				IF(endtime IS NOT NULL, TIMESTAMPDIFF(SECOND, bantime, endtime), 0) as ban_diff,\
 				(endtime < CURRENT_TIMESTAMP) as expired,\
-				_banned.displayname as banned_name, _updater.displayname as updater_name, _banner.displayname as banner_name,\
+				_banned.displayname as banned_name, _updater.displayname as updater_name, _banner.displayname as banner_name, _unbanner.displayname as unbanner_name,\
 				unban_reason, unbanned, CAST(unbanned_by as CHAR) as unbanned_by,\
 				CAST(updated_by AS CHAR) as updated_by, updatetime FROM pluto_bans\
 \
 				LEFT OUTER JOIN pluto_player_info _banned ON _banned.steamid = pluto_bans.banned_user\
 				LEFT OUTER JOIN pluto_player_info _banner ON _banner.steamid = pluto_bans.banner\
+				LEFT OUTER JOIN pluto_player_info _unbanner ON _unbanner.steamid = pluto_bans.unbanned_by\
 				LEFT OUTER JOIN pluto_player_info _updater ON _updater.steamid = pluto_bans.updated_by\
 				WHERE banned_user = ?", {info.Player}, function(err, q, d)
 
@@ -156,7 +157,7 @@ admin.commands = {
 						ban.banned_name, ban.banned_user, ban.bantime, ban.banner_name or "???", ban.banner, ban.ban_diff == 0 and "Permanent" or ban.ban_diff .. " minutes", ban.reason)
 
 					if (ban.unbanned == 1) then
-						printf("\n\t\tUnbanned by %s [%s]: %s", ban.updater_name or "CONSOLE", ban.updated_by, ban.unban_reason)
+						printf("\n\t\tUnbanned by %s [%s]: %s", ban.unbanner_name or "CONSOLE", ban.unbanned_by, ban.unban_reason)
 					end
 
 					if (ban.updated_by) then
@@ -170,7 +171,36 @@ admin.commands = {
 			return true
 		end,
 	},
-
+	mute = {
+		args = {
+			{
+				Name = "Time",
+				Type = "time"
+			},
+			{
+				Name = "Reason",
+				Type = "string"
+			}
+		},
+		Do = function(user, info)
+		end,
+	},
+	unban = {
+		args = {
+			{
+				Name = "SteamID",
+				Type = "userid"
+			},
+			{
+				Name = "Reason",
+				Type = "string"
+			}
+		},
+		Do = function(user, info)
+			pluto.db.query("CALL pluto_unban(?, ?, ?)", {info.SteamID, pluto.db.steamid64(user) or 0, info.Reason}, print)
+			return true
+		end
+	}
 }
 
 hook.Add("TTTRemoveIneligiblePlayers", "admin_slaynr", function(plys)
