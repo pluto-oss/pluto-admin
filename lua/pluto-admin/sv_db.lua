@@ -173,12 +173,11 @@ end
 
 function admin.ban(ply, reason, minutes, banner)
 	local steamid = pluto.db.steamid64(ply)
-	admin.punish("ban", ply, reason, minutes, banner, function()
-		local ply = player.GetBySteamID64(steamid)
-		if (IsValid(ply)) then
-			ply:Kick(reason)
-		end
-	end)
+	admin.punish("ban", steamid, reason, minutes, banner)
+	local ply = player.GetBySteamID64(steamid)
+	if (IsValid(ply)) then
+		ply:Kick(reason)
+	end
 end
 
 function admin.unban(ply, reason, unbanner)
