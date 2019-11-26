@@ -1,10 +1,9 @@
-local color_name = Color(255, 0, 0)
-local color_text = Color(230, 230, 230, 255)
-local color_important = Color(0, 255, 0)
+color_name = Color(255, 0, 0)
+color_text = Color(230, 230, 230, 255)
+color_important = Color(0, 255, 0)
 
 local function name(x)
 	local ply = player.GetBySteamID64(x)
-	print(x, ply)
 	if (IsValid(ply)) then
 		return ply:Nick()
 	end
@@ -182,7 +181,7 @@ local function punishment(n, _do, _undo)
 	admin.commands["un" .. n] = {
 		args = {
 			{
-				Name = "SteamID",
+				Name = "Player",
 				Type = "userid"
 			},
 			{
@@ -194,7 +193,7 @@ local function punishment(n, _do, _undo)
 			if (_undo) then
 				_undo(info.Player, info.Reason, user)
 			else
-				admin.punish_revoke(n, info.Player, info.Reason, info.Time, user)
+				admin.punish_revoke(n, info.Player, info.Reason, user)
 			end
 
 			admin.chatf(color_name, user:Nick(), color_text, " has ran un" .. n .. " on ", color_name, name(info.Player))

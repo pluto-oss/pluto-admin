@@ -53,7 +53,7 @@ hook.Add("PlutoDatabaseInitialize", "pluto_admin_init", function(db)
 				IF i = 0 THEN
 					INSERT INTO pluto_punishments (effected_user, reason, acting_user, endtime, punishment) VALUES (user, _reason, actor, _endtime, _punishment);
 				ELSE
-					UPDATE pluto_punishments SET updating_user = banner, reason = _reason, endtime = _endtime WHERE idx = i;
+					UPDATE pluto_punishments SET updating_user = user, reason = _reason, endtime = _endtime WHERE idx = i;
 				END IF;
 			END]]
 		},
@@ -151,13 +151,49 @@ hook.Add("PlayerAuthed", "pluto_admin", function(ply)
 	admin.getrank(ply, function(rank)
 		ply:SetUserGroup(rank)
 	end)
+
+	ply.Punishments = {}
+	
+	pluto.db.query("SELECT reason, punishment, IF(endtime IS NULL, 0, TIMESTAMPDIFF(SECOND, CURRENT_TIMESTAMP, endtime)) as seconds_remaining\
+	FROM pluto_punishments \
+	WHERE effected_user = ? AND NOT (revoked = TRUE OR endtime IS NOT NULL AND endtime <= CURRENT_TIMESTAMP)", {pluto.db.steamid64(ply)}, function(err, q)
+		if (err or not IsValid(ply)) then
+			return
+		end
+
+		for _, data in pairs(q:getData()) do
+			local prev = ply.Punishments[data.punishment]
+			if (not prev) then
+				prev = {}
+				ply.Punishments[data.punishment] = prev
+			end
+
+			prev.Reason = data.reason
+			prev.Ending = math.max(prev.Ending or 0, data.seconds_remaining == 0 and math.huge or os.time() + data.seconds_remaining)
+		end
+	end)
 end)
 
 function admin.punish(type, ply, reason, minutes, actor, cb)
 	local steamid = pluto.db.steamid64(ply)
-	banner = banner ~= 0 and banner and pluto.db.steamid64(actor) or 0
+	actor = actor ~= 0 and actor and pluto.db.steamid64(actor) or 0
 
-	pluto.db.query("CALL pluto_punish(?, ?, ?, ?, ?)", {type, steamid, banner, reason, math.floor(minutes * 60)}, cb or function() end)
+	pluto.db.query("CALL pluto_punish(?, ?, ?, ?, ?)", {type, steamid, actor, reason, math.floor(minutes * 60)}, cb or function() end)
+
+	local p = player.GetBySteamID64(steamid)
+
+	if (not IsValid(p)) then
+		return
+	end
+
+	local prev = p.Punishments[type]
+	if (not prev) then
+		prev = {}
+		p.Punishments[type] = prev
+	end
+
+	prev.Reason = reason
+	prev.Ending = math.max(prev.Ending or 0, minutes == 0 and math.huge or os.time() + minutes * 60)
 end
 
 function admin.punish_revoke(type, ply, reason, revoker)
@@ -169,6 +205,14 @@ function admin.punish_revoke(type, ply, reason, revoker)
 			return
 		end
 	end)
+
+	local p = player.GetBySteamID64(ply)
+
+	if (not IsValid(p)) then
+		return
+	end
+
+	p.Punishments[type] = nil
 end
 
 function admin.ban(ply, reason, minutes, banner)
@@ -190,6 +234,7 @@ hook.Add("CheckPassword", "pluto_bans", function(sid)
 		FROM pluto_punishments \
 		LEFT OUTER JOIN pluto_player_info actor ON actor.steamid = pluto_punishments.acting_user\
 		WHERE effected_user = ? AND punishment = 'ban' AND NOT (revoked = TRUE OR endtime IS NOT NULL AND endtime <= CURRENT_TIMESTAMP)", {sid}, function(err, q)
+
 		if (err) then
 			return
 		end
@@ -200,4 +245,13 @@ hook.Add("CheckPassword", "pluto_bans", function(sid)
 			game.KickID(util.SteamIDFrom64(sid), admin.formatban(data.reason, data.acting_name, data.banner, data.seconds_remaining))
 		end
 	end)
+end)
+
+hook.Add("PlayerSay", "pluto_mutes", function(s)
+	local mute = s.Punishments and s.Punishments.mute
+
+	if (mute and mute.Ending > os.time()) then
+		s:AdminChat(color_text, "You are ", color_important, "muted ", color_text, "for ", color_name, mute.Ending, color_text, " more seconds because: ", color_important, mute.Reason)
+		return false
+	end
 end)
