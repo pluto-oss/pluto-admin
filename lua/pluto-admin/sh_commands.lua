@@ -18,28 +18,6 @@ local function name(x)
 end
 
 admin.commands = {
-	ban = {
-		args = {
-			{
-				Name = "Player",
-				Type = "userid",
-			},
-			{
-				Name = "Time",
-				Type = "time",
-			},
-			{
-				Name = "Reason",
-				Type = "string",
-			},
-		},
-		-- TODO(meep): NOT HERE IN FUTURE!!
-		Do = function(user, info)
-			admin.ban(info.Player, info.Reason, info.Time, user)
-			admin.chatf(color_name, user:Nick(), color_text, " has banned ", color_name, name(info.Player))
-			return true
-		end
-	},
 	slay = {
 		args = {
 			{
@@ -138,23 +116,23 @@ admin.commands = {
 				end
 			end
 
-			pluto.db.query("SELECT CAST(banned_user as CHAR) as banned_user, CAST(banner as CHAR) as banner, bantime, endtime, reason,\
-				IF(endtime IS NOT NULL, TIMESTAMPDIFF(SECOND, bantime, endtime), 0) as ban_diff,\
+			pluto.db.query("SELECT CAST(effected_user as CHAR) as banned_user, CAST(acting_user as CHAR) as banner, starttime as bantime, endtime, reason,\
+				IF(endtime IS NOT NULL, TIMESTAMPDIFF(SECOND, starttime, endtime), 0) as ban_diff,\
 				(endtime < CURRENT_TIMESTAMP) as expired,\
 				_banned.displayname as banned_name, _updater.displayname as updater_name, _banner.displayname as banner_name, _unbanner.displayname as unbanner_name,\
-				unban_reason, unbanned, CAST(unbanned_by as CHAR) as unbanned_by,\
-				CAST(updated_by AS CHAR) as updated_by, updatetime FROM pluto_bans\
+				revoke_reason as unban_reason, revoked as unbanned, CAST(revoking_user as CHAR) as unbanned_by,\
+				CAST(updating_user AS CHAR) as updated_by, updatetime, punishment FROM pluto_punishments\
 \
-				LEFT OUTER JOIN pluto_player_info _banned ON _banned.steamid = pluto_bans.banned_user\
-				LEFT OUTER JOIN pluto_player_info _banner ON _banner.steamid = pluto_bans.banner\
-				LEFT OUTER JOIN pluto_player_info _unbanner ON _unbanner.steamid = pluto_bans.unbanned_by\
-				LEFT OUTER JOIN pluto_player_info _updater ON _updater.steamid = pluto_bans.updated_by\
-				WHERE banned_user = ?", {info.Player}, function(err, q, d)
+				LEFT OUTER JOIN pluto_player_info _banned ON _banned.steamid = pluto_punishments.effected_user\
+				LEFT OUTER JOIN pluto_player_info _banner ON _banner.steamid = pluto_punishments.acting_user\
+				LEFT OUTER JOIN pluto_player_info _unbanner ON _unbanner.steamid = pluto_punishments.revoking_user\
+				LEFT OUTER JOIN pluto_player_info _updater ON _updater.steamid = pluto_punishments.updating_user\
+				WHERE effected_user = ?", {info.Player}, function(err, q, d)
 
-				printf("Bans for %s:", info.Player)
+				printf("Past offences for %s:", info.Player)
 				for i, ban in pairs(d) do
-					printf("%i: %s\n\t%s [%s] was banned at %s by %s [%s]\n\t\tLength: %s\n\t\tReason: %s", i, ban.unbanned == 1 and "(UNBANNED)" or ban.expired == 1 and "(EXPIRED)" or "",
-						ban.banned_name, ban.banned_user, ban.bantime, ban.banner_name or "???", ban.banner, ban.ban_diff == 0 and "Permanent" or ban.ban_diff .. " minutes", ban.reason)
+					printf("%i: %s %s\n\t%s [%s] was banned at %s by %s [%s]\n\t\tLength: %s\n\t\tReason: %s", i, ban.punishment, ban.unbanned == 1 and "(REVOKED)" or ban.expired == 1 and "(EXPIRED)" or "",
+						ban.banned_name, ban.banned_user, ban.bantime, ban.banner_name or "???", ban.banner, ban.ban_diff == 0 and "Permanent" or ban.ban_diff .. " seconds", ban.reason)
 
 					if (ban.unbanned == 1) then
 						printf("\n\t\tUnbanned by %s [%s]: %s", ban.unbanner_name or "CONSOLE", ban.unbanned_by, ban.unban_reason)
@@ -171,21 +149,37 @@ admin.commands = {
 			return true
 		end,
 	},
-	mute = {
+}
+
+local function punishment(n, _do, _undo)
+	admin.commands[n] = {
 		args = {
 			{
+				Name = "Player",
+				Type = "userid",
+			},
+			{
 				Name = "Time",
-				Type = "time"
+				Type = "time",
 			},
 			{
 				Name = "Reason",
-				Type = "string"
-			}
+				Type = "string",
+			},
 		},
 		Do = function(user, info)
-		end,
-	},
-	unban = {
+			if (_do) then
+				_do(info.Player, info.Reason, info.Time, user)
+			else
+				admin.punish(n, info.Player, info.Reason, info.Time, user)
+			end
+			admin.chatf(color_name, user:Nick(), color_text, " has ran " .. n .. " on ", color_name, name(info.Player))
+
+			return true
+		end
+	}
+
+	admin.commands["un" .. n] = {
 		args = {
 			{
 				Name = "SteamID",
@@ -197,11 +191,21 @@ admin.commands = {
 			}
 		},
 		Do = function(user, info)
-			pluto.db.query("CALL pluto_unban(?, ?, ?)", {info.SteamID, pluto.db.steamid64(user) or 0, info.Reason}, print)
+			if (_undo) then
+				_undo(info.Player, info.Reason, user)
+			else
+				admin.punish_revoke(n, info.Player, info.Reason, info.Time, user)
+			end
+
+			admin.chatf(color_name, user:Nick(), color_text, " has ran un" .. n .. " on ", color_name, name(info.Player))
 			return true
 		end
 	}
-}
+end
+
+punishment("ban", admin.ban, admin.unban)
+
+punishment("mute")
 
 hook.Add("TTTRemoveIneligiblePlayers", "admin_slaynr", function(plys)
 	local remove = {}

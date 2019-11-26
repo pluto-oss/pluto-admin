@@ -59,6 +59,7 @@ admin.ranks = {
 		permissions = {
 			slay = true,
 			bring = true,
+			unmute = true,
 		},
 		color = color_black,
 	},
