@@ -26,7 +26,7 @@ admin.ranks = {
 		aliases = {
 			"adv",
 		},
-		color = Color(255, 114, 70),
+		color = Color(52, 212, 55),
 		permissions = {
 			setrank = "leadadmin",
 			tradeban = true,
@@ -88,6 +88,7 @@ admin.ranks = {
 			map = true, -- only for now, need to fix bugs preventing round end
 			mute = true,
 			gag = true,
+			ungag = true,
 			afk = true,
 			slaynr = true,
 		},

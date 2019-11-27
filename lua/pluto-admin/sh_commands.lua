@@ -150,7 +150,7 @@ admin.commands = {
 	},
 }
 
-local function punishment(n, _do, _undo)
+local function punishment(n)
 	admin.commands[n] = {
 		args = {
 			{
@@ -167,12 +167,12 @@ local function punishment(n, _do, _undo)
 			},
 		},
 		Do = function(user, info)
-			if (_do) then
-				_do(info.Player, info.Reason, info.Time, user)
+			if (admin[n]) then
+				admin[n](info.Player, info.Reason, info.Time, user)
 			else
 				admin.punish(n, info.Player, info.Reason, info.Time, user)
 			end
-			admin.chatf(color_name, user:Nick(), color_text, " has ran " .. n .. " on ", color_name, name(info.Player))
+			admin.chatf(color_name, user:Nick(), color_text, " has ran " .. n .. " on ", color_name, name(info.Player), color_text, ": ", color_important, info.Reason)
 
 			return true
 		end
@@ -190,21 +190,22 @@ local function punishment(n, _do, _undo)
 			}
 		},
 		Do = function(user, info)
-			if (_undo) then
-				_undo(info.Player, info.Reason, user)
+			if (admin["un" .. n]) then
+				admin["un" .. n](info.Player, info.Reason, user)
 			else
 				admin.punish_revoke(n, info.Player, info.Reason, user)
 			end
 
-			admin.chatf(color_name, user:Nick(), color_text, " has ran un" .. n .. " on ", color_name, name(info.Player))
+			admin.chatf(color_name, user:Nick(), color_text, " has ran un" .. n .. " on ", color_name, name(info.Player), color_text, ": ", color_important, info.Reason)
 			return true
 		end
 	}
 end
 
-punishment("ban", admin.ban, admin.unban)
+punishment "ban"
 
-punishment("mute")
+punishment "mute"
+punishment "gag"
 
 hook.Add("TTTRemoveIneligiblePlayers", "admin_slaynr", function(plys)
 	local remove = {}
