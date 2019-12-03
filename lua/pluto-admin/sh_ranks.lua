@@ -57,7 +57,6 @@ admin.ranks = {
 			"ad",
 		},
 		permissions = {
-			slay = true,
 			bring = true,
 			unmute = true,
 		},
@@ -91,6 +90,7 @@ admin.ranks = {
 			ungag = true,
 			afk = true,
 			slaynr = true,
+			slay = true,
 		},
 		color = Color(131, 231, 225),
 	},
