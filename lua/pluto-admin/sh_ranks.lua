@@ -111,9 +111,11 @@ admin.ranks = {
 
 hook.Add("TTTGetPlayerColor", "pluto_admin", function(ply)
 	local rank = admin.ranks[ply:GetUserGroup()]
-	if (rank and rank.color) then
+	if (rank and rank.color and ply:GetUserGroup() ~= "user") then
 		return rank.color
 	end
+
+	return Color(0, 0, 0, 0)
 end)
 
 function admin.hasperm(usergroup, perm)

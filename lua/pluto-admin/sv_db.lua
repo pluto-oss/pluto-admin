@@ -197,10 +197,10 @@ function admin.punish(type, ply, reason, minutes, actor, cb)
 end
 
 function admin.punish_revoke(type, ply, reason, revoker)
-	unbanner = unbanner and pluto.db.steamid64(unbanner) or 0
+	revoker = revoker and pluto.db.steamid64(revoker) or 0
 	ply = ply and pluto.db.steamid64(ply) or 0
 
-	pluto.db.query("CALL pluto_punish_revoke(?, ?, ?, ?)", {type, ply, unbanner, reason or ""}, function(err, q)
+	pluto.db.query("CALL pluto_punish_revoke(?, ?, ?, ?)", {type, ply, revoker, reason or ""}, function(err, q)
 		if (err) then
 			return
 		end
