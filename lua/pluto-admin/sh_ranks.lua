@@ -91,6 +91,7 @@ admin.ranks = {
 			afk = true,
 			slaynr = true,
 			slay = true,
+			pa = true,
 		},
 		color = Color(131, 231, 225),
 	},

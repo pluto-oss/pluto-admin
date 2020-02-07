@@ -148,6 +148,20 @@ admin.commands = {
 			return true
 		end,
 	},
+	pa = {
+		args = {
+			{
+				Name = "Message",
+				Type = "string",
+			}
+		},
+		Do = function(user, info)
+			local rank = admin.ranks[user:GetUserGroup()]
+			if (rank) then
+				admin.chatf(white_text, "[", rank.color, rank.PrintName, white_text, "]: ", ttt.roles.Innocent.Color, info.Message, white_text, "\n- ", user:Nick())
+			end
+		end,
+	},
 }
 
 local function punishment(n)
