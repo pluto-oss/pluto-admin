@@ -43,7 +43,6 @@ admin.ranks = {
 		},
 		permissions = {
 			ban_custom = true,
-			kick = true,
 			["goto"] = true,
 			unban = true,
 		},
@@ -83,6 +82,7 @@ admin.ranks = {
 		permissions = {
 			rdm = true,
 
+			kick = true,
 			ban = true,
 			map = true, -- only for now, need to fix bugs preventing round end
 			mute = true,

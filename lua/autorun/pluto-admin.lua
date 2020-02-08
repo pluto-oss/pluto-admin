@@ -54,7 +54,6 @@ loadall {
 		"sh_commands.lua",
 	},
 	Server = {
-		"sv_init.lua",
 		"sv_commands.lua",
 		"sv_db.lua",
 	},
