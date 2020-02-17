@@ -1,7 +1,7 @@
 hook.Add("PlutoDatabaseInitialize", "pluto_admin_init", function(db)
-	pluto.db.transact {
-		{
-			[[CREATE TABLE IF NOT EXISTS pluto_player_info (
+	pluto.db.transact()
+		:AddQuery [[
+			CREATE TABLE IF NOT EXISTS pluto_player_info (
 				steamid BIGINT UNSIGNED NOT NULL PRIMARY KEY,
 				rank VARCHAR(16) NOT NULL DEFAULT "user",
 				first_join TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -10,9 +10,8 @@ hook.Add("PlutoDatabaseInitialize", "pluto_admin_init", function(db)
 				last_server INT UNSIGNED NOT NULL,
 				displayname VARCHAR(64) NOT NULL
 			)]]
-		},
-		{
-			[[CREATE TABLE IF NOT EXISTS pluto_punishments (
+		:AddQuery [[
+			CREATE TABLE IF NOT EXISTS pluto_punishments (
 				idx INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
 
 				punishment VARCHAR(16) NOT NULL,
@@ -32,9 +31,8 @@ hook.Add("PlutoDatabaseInitialize", "pluto_admin_init", function(db)
 
 				INDEX USING HASH(effected_user)
 			)]]
-		},
-		{
-			[[CREATE PROCEDURE IF NOT EXISTS pluto_punish (
+		:AddQuery [[
+			CREATE PROCEDURE IF NOT EXISTS pluto_punish (
 				_punishment VARCHAR(16),
 				user BIGINT UNSIGNED,
 				actor BIGINT UNSIGNED,
@@ -56,9 +54,8 @@ hook.Add("PlutoDatabaseInitialize", "pluto_admin_init", function(db)
 					UPDATE pluto_punishments SET updating_user = user, reason = _reason, endtime = _endtime WHERE idx = i;
 				END IF;
 			END]]
-		},
-		{
-			[[CREATE PROCEDURE IF NOT EXISTS pluto_punish_revoke (
+		:AddQuery [[
+			CREATE PROCEDURE IF NOT EXISTS pluto_punish_revoke (
 				_punishment VARCHAR(16),
 				user BIGINT UNSIGNED,
 				revoker BIGINT UNSIGNED,
@@ -72,9 +69,8 @@ hook.Add("PlutoDatabaseInitialize", "pluto_admin_init", function(db)
 					UPDATE pluto_punishments SET revoking_user = revoker, revoke_reason = _reason, revoked = TRUE WHERE idx = i;
 				END IF;
 			END]]
-		},
-		{
-			[[CREATE PROCEDURE IF NOT EXISTS pluto_ban (
+		:AddQuery [[
+			CREATE PROCEDURE IF NOT EXISTS pluto_ban (
 				user BIGINT UNSIGNED,
 				actor BIGINT UNSIGNED,
 				_reason VARCHAR(255),
@@ -82,8 +78,8 @@ hook.Add("PlutoDatabaseInitialize", "pluto_admin_init", function(db)
 			) BEGIN
 				CALL pluto_punish('ban', user, actor, _reason, seconds);
 			END]]
-		},
-	}:wait(true)
+		:Halt()
+		:Run()
 end)
 
 function admin.formatban(reason, banner_name, banner, length)
@@ -104,12 +100,16 @@ function admin.getrank(ply, cb)
 		nick = p:Nick()
 	end
 
-	pluto.db.transact({
-		{ "INSERT INTO pluto_player_info (steamid, displayname, last_server) VALUES (?, ?, INET_ATON(?)) ON DUPLICATE KEY UPDATE displayname = VALUE(displayname), last_server = VALUE(last_server), last_join = CURRENT_TIMESTAMP", {ply, nick, game.GetIPAddress():match"^[^:]+"} },
-		{ "SELECT rank FROM pluto_player_info WHERE steamid = ?", {ply}, function(err, q)
-			return cb(not err and q:getData()[1].rank or "user")
-		end }
-	})
+	pluto.db.transact()
+		:AddQuery("INSERT INTO pluto_player_info (steamid, displayname, last_server) VALUES (?, ?, INET_ATON(?)) ON DUPLICATE KEY UPDATE displayname = VALUE(displayname), last_server = VALUE(last_server), last_join = CURRENT_TIMESTAMP", {ply, nick, game.GetIPAddress():match"^[^:]+"})
+		:AddQuery(
+			"SELECT rank FROM pluto_player_info WHERE steamid = ?",
+			{ply},
+			function(err, q)
+				return cb(not err and q:getData()[1].rank or "user")
+			end
+		)
+		:Run()
 end
 
 function admin.updatetime(ply)
