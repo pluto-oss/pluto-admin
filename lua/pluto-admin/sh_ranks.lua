@@ -106,6 +106,7 @@ admin.ranks = {
 		PrintName = "User",
 		permissions = {
 			po = true,
+			playtime = true,
 		}
 	},
 }

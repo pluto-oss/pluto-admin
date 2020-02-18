@@ -162,6 +162,49 @@ admin.commands = {
 			end
 		end,
 	},
+	playtime = {
+		args = {},
+		Do = function(user, info)
+			pluto.db.query("SELECT time_played FROM pluto_player_info WHERE steamid = ?", {user:SteamID64()}, function(err, q, d)
+				playtime = d[1].time_played
+
+				length = ""
+
+				if (playtime % 60 ~= 0) then
+					length = playtime % 60 .. " seconds "
+				end
+				playtime = math.floor(playtime / 60)
+
+				if (playtime % 60 ~= 0) then
+					length = playtime % 60 .. " minutes " .. length
+				end
+				playtime = math.floor(playtime / 60)
+
+				if (playtime % 24 ~= 0) then
+					length = playtime % 24 .. " hours " .. length
+				end
+				playtime = math.floor(playtime / 24)
+
+				if (playtime % 7 ~= 0) then
+					length = playtime % 7 .. " days " .. length
+				end
+				playtime = math.floor(playtime / 7)
+
+				if (playtime % 4 ~= 0) then
+					length = playtime % 4 .. " weeks " .. length
+				end
+				playtime = math.floor(playtime / 4)
+
+				if (playtime ~= 0) then
+					length = playtime .. " months " .. length
+				end
+				
+				user:ChatPrint("You have played " .. length)
+			end)
+
+			return true
+		end
+	},
 }
 
 local function punishment(n)
