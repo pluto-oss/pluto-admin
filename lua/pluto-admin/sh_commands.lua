@@ -99,6 +99,44 @@ admin.commands = {
 			end
 		end,
 	},
+	rslaynr = {
+		args = {
+			{
+				Name = "Player",
+				Type = "userid",
+			}
+		},
+		Do = function(user, info)
+			local ply = player.GetBySteamID64(info.Player)
+
+			if (IsValid(ply) and ply.Slays and ply.Slays > 0) then
+				ply.Slays = ply.Slays - 1
+				admin.chatf(color_name, user:Nick(), color_text, " ran rslaynr on ", color_name, name(info.Player))
+				return true
+			end
+		end,
+	},
+	kick = {
+		args = {
+			{
+				Name = "Player",
+				Type = "userid",
+			},
+			{
+				Name = "Reason",
+				Type = "string",
+			}
+		},
+		Do = function(user, info)
+			local ply = player.GetBySteamID64(info.Player)
+
+			if (IsValid(ply)) then
+				ply:Kick(info.Reason)
+				admin.chatf(color_name, user:Nick(), color_text, " kicked ", color_name, name(info.Player), color_text, " for ", color_important, info.Reason)
+				return true
+			end
+		end,
+	},
 	po = {
 		args = {
 			{
