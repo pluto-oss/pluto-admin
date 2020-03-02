@@ -90,6 +90,7 @@ admin.ranks = {
 			ungag = true,
 			afk = true,
 			slaynr = true,
+			rslaynr = true,
 			slay = true,
 			pa = true,
 		},

@@ -116,7 +116,7 @@ admin.commands = {
 			end
 		end,
 	},
-	kick {
+	kick = {
 		args = {
 			{
 				Name = "Player",
