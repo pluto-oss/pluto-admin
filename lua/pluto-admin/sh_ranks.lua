@@ -57,7 +57,6 @@ admin.ranks = {
 		},
 		permissions = {
 			bring = true,
-			unmute = true,
 		},
 		color = color_black,
 	},
@@ -86,6 +85,7 @@ admin.ranks = {
 			ban = true,
 			map = true, -- only for now, need to fix bugs preventing round end
 			mute = true,
+			unmute = true,
 			gag = true,
 			ungag = true,
 			afk = true,
