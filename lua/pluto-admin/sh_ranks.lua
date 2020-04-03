@@ -5,10 +5,10 @@ admin.ranks = {
 		aliases = {
 			"dev",
 		},
-		color = Color(237, 34, 11),
+		color = Color(136, 21, 22),
 		permissions = {
 			setrank = "developer",
-			ac = true
+			ac = true,
 		},
 	},
 	designer = {
@@ -26,7 +26,7 @@ admin.ranks = {
 		aliases = {
 			"adv",
 		},
-		color = Color(52, 212, 55),
+		color = Color(17, 79, 18),
 		permissions = {
 			setrank = "leadadmin",
 			tradeban = true,
@@ -94,7 +94,7 @@ admin.ranks = {
 			slay = true,
 			pa = true,
 		},
-		color = Color(131, 231, 225),
+		color = Color(13, 77, 80),
 	},
 	donator = {
 		PrintName = "Donator",
@@ -108,6 +108,7 @@ admin.ranks = {
 		permissions = {
 			po = true,
 			playtime = true,
+			--gold = true,
 		}
 	},
 }
@@ -119,6 +120,13 @@ hook.Add("TTTGetPlayerColor", "pluto_admin", function(ply)
 	end
 
 	return Color(0, 0, 0, 0)
+end)
+
+hook.Add("TTTGetRankPrintName", "pluto_admin", function(rank)
+	local rank = admin.ranks[rank]
+	if (rank and rank.PrintName) then
+		return rank.PrintName
+	end
 end)
 
 function admin.hasperm(usergroup, perm)

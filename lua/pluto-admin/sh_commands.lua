@@ -37,6 +37,27 @@ admin.commands = {
 			return true
 		end,
 	},
+	gold = {
+		args = {
+			{
+				Name = "Player",
+				Type = "userid",
+			}
+		},
+		Do = function(user, info)
+			local ply = player.GetBySteamID64(info.Player)
+
+			if (not IsValid(ply) or not ply:Alive()) then
+				return
+			end
+
+			local rag = ttt.CreatePlayerRagdoll(ply, ply, DamageInfo())
+			if (IsValid(rag)) then
+				MakeGold(rag)
+			end
+			return true
+		end
+	},
 	map = {
 		args = {
 			{
