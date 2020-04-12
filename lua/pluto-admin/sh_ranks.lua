@@ -20,6 +20,15 @@ admin.ranks = {
 		color = color_black,
 		permissions = {},
 	},
+	cute = {
+		PrintName = "Cute",
+		inherits = "advisor",
+		aliases = {
+			"kat",
+		},
+		color = Color(27, 171, 61),
+		permissions = {},
+	},
 	advisor = {
 		PrintName = "Advisor",
 		inherits = "leadadmin",

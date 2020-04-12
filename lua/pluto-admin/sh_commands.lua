@@ -85,22 +85,28 @@ admin.commands = {
 			}
 		},
 		Do = function(user, info)
-			local usergroup, last = CAMI.GetUsergroup(admin.hasperm(user:GetUserGroup(), "setrank"))
+			local notallowed = admin.hasperm(user:GetUserGroup(), "setrank")
+			local usergroup, last = CAMI.GetUsergroup(info.Rank)
+
+			if (not admin.ranks[info.Rank]) then
+				return false
+			end
 
 			while (usergroup and usergroup ~= last) do
-				if (usergroup.Name == info.Rank) then
-					break
-				end
-
 				last = usergroup
+
 				usergroup = CAMI.GetUsergroup(usergroup.Inherits)
+
+				if (usergroup and usergroup.Name == notallowed) then
+					print(usergroup.Name, notallowed)
+					return false
+				end
 			end
 
-			if (usergroup.Name == info.Rank) then
-				admin.setrank(info.Player, info.Rank)
-				admin.chatf(color_name, user:Nick(), color_text, " set the rank of ", color_name, name(info.Player), color_text, " to ", color_important, info.Rank)
-				return true
-			end
+			admin.setrank(info.Player, info.Rank)
+			usergroup = admin.ranks[info.Rank]
+			admin.chatf(color_name, user:Nick(), color_text, " set the rank of ", color_name, name(info.Player), color_text, " to ", usergroup.color, usergroup.PrintName)
+			return true
 		end,
 	},
 	slaynr = {
