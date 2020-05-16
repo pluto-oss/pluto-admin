@@ -31,7 +31,7 @@ admin.ranks = {
 	},
 	advisor = {
 		PrintName = "Advisor",
-		inherits = "leadadmin",
+		inherits = "admin",
 		aliases = {
 			"adv",
 		},
@@ -41,28 +41,15 @@ admin.ranks = {
 			tradeban = true,
 		},
 	},
-	leadadmin = {
-		PrintName = "Lead Admin",
-		inherits = "admin",
-		aliases = {
-			"lead",
-			"la",
-			"ladmin",
-			"leada",
-		},
-		permissions = {
-			ban_custom = true,
-			["goto"] = true,
-			unban = true,
-		},
-		color = Color(255, 106, 214),
-	},
 	admin = {
 		PrintName = "Administrator",
 		inherits = "mod",
 		aliases = {
 			"administrator",
 			"ad",
+			ban_custom = true,
+			["goto"] = true,
+			unban = true,
 		},
 		permissions = {
 			bring = true,
@@ -102,6 +89,7 @@ admin.ranks = {
 			rslaynr = true,
 			slay = true,
 			pa = true,
+			bypass_max = true,
 		},
 		color = Color(13, 77, 80),
 	},

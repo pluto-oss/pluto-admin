@@ -56,3 +56,50 @@ net.Receive("pluto-admin-cmd", function(len, cl)
 		cl:PrintMessage(HUD_PRINTCONSOLE, "You do not have permission.")
 	end
 end)
+
+hook.Add("PlayerSay", "pluto_admin_chat", function(ply, text, team)
+	if (team or text:sub(1, 1) ~= "@") then
+		return
+	end
+
+	text = text:sub(2)
+
+	local msg
+
+	if (admin.hasperm(ply:GetUserGroup(), "rdm")) then
+		local usergroup = admin.ranks[ply:GetUserGroup()]
+		msg = {
+			Color(27, 171, 61),
+			"[",
+			usergroup.color,
+			usergroup.PrintName,
+			Color(27, 171, 61),
+			"] ",
+			ttt.roles.Innocent.Color,
+			ply:Nick(),
+			white_text,
+			": " .. text
+		}
+	else
+		msg = {
+			Color(27, 171, 61),
+			"[",
+			Color(136, 21, 22),
+			"REQUEST",
+			Color(27, 171, 61),
+			"] ",
+			ttt.roles.Traitor.Color,
+			ply:Nick(),
+			white_text,
+			": " .. text
+		}
+	end
+
+	for _, oply in pairs(player.GetAll()) do
+		if (oply == ply or admin.hasperm(oply:GetUserGroup(), "rdm")) then
+			oply:ChatPrint(unpack(msg))
+		end
+	end
+
+	return ""
+end)

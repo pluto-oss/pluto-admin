@@ -78,6 +78,9 @@ hook.Add("PlutoDatabaseInitialize", "pluto_admin_init", function(db)
 			) BEGIN
 				CALL pluto_punish('ban', user, actor, _reason, seconds);
 			END]]
+		:AddQuery [[
+			CREATE TABLE IF NOT EXISTS pluto_blocks (blocker BIGINT UNSIGNED NOT NULL, blockee BIGINT UNSIGNED NOT NULL, PRIMARY KEY (blocker, blockee), INDEX(blocker))
+		]]
 		:Halt()
 		:Run()
 end)
