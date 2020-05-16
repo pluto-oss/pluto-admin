@@ -47,12 +47,12 @@ admin.ranks = {
 		aliases = {
 			"administrator",
 			"ad",
-			ban_custom = true,
-			["goto"] = true,
-			unban = true,
 		},
 		permissions = {
 			bring = true,
+			ban_custom = true,
+			["goto"] = true,
+			unban = true,
 		},
 		color = color_black,
 	},
