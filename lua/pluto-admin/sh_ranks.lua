@@ -89,6 +89,7 @@ admin.ranks = {
 			rslaynr = true,
 			slay = true,
 			pa = true,
+			warn = true,
 			bypass_max = true,
 		},
 		color = Color(13, 77, 80),

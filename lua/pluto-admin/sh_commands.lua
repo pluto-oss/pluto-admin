@@ -194,7 +194,20 @@ admin.commands = {
 				WHERE effected_user = ?", {info.Player}, function(err, q, d)
 
 				printf("Past offences for %s:", info.Player)
-				for i, ban in pairs(d) do
+				offenses = {
+					bans = {},
+					warns = {}
+				}
+				for i, offense in pairs(d) do
+					if (offense.punishment == "ban") then
+						table.insert(offenses.bans, offense)
+					elseif (offense.punishment == "warn") then
+						table.insert(offenses.warns, offense)
+					end
+				end
+
+				printf("---------------------- BANS ----------------------")
+				for i, ban in pairs(offenses.bans) do
 					printf("%i: %s %s\n\t%s [%s] was banned at %s by %s [%s]\n\t\tLength: %s\n\t\tReason: %s", i, ban.punishment, ban.unbanned == 1 and "(REVOKED)" or ban.expired == 1 and "(EXPIRED)" or "",
 						ban.banned_name, ban.banned_user, ban.bantime, ban.banner_name or "???", ban.banner, ban.ban_diff == 0 and "Permanent" or ban.ban_diff .. " seconds", ban.reason)
 
@@ -202,11 +215,14 @@ admin.commands = {
 						printf("\n\t\tUnbanned by %s [%s]: %s", ban.unbanner_name or "CONSOLE", ban.unbanned_by, ban.unban_reason)
 					end
 
-					if (ban.updated_by) then
-						printf("\n\t\tLast updated at %s by %s [%s]", ban.updatetime, ban.updater_name or "", ban.updated_by)
-					end
-
 					printf "\n"
+				end
+
+				printf("---------------------- WARNS ---------------------")
+
+				for i, warn in pairs(offenses.warns) do
+					printf("%i: %s %s\n\t%s [%s] was warned at %s by %s [%s]\n\t\tReason: %s", i, warn.punishment, warn.unbanned == 1 and "(REVOKED)" or warn.expired == 1 and "(EXPIRED)" or "",
+					warn.banned_name, warn.banned_user, warn.bantime, warn.banner_name or "???", warn.banner, warn.reason)
 				end
 			end)
 
@@ -269,6 +285,28 @@ admin.commands = {
 
 			return true
 		end
+	},
+	warn = {
+		args = {
+			{
+				Name = "Player",
+				Type = "userid",
+			},
+			{
+				Name = "Reason",
+				Type = "string",
+			}
+		},
+		Do = function(user, info)
+			local ply = player.GetBySteamID64(info.Player)
+
+			if (IsValid(ply)) then
+				pluto.db.query("CALL pluto_warn(?, ?, ?)", {ply:SteamID64(), user:SteamID64(), info.Reason}, function() end)
+
+				admin.chatf(color_name, user:Nick(), color_text, " warned ", color_name, name(info.Player), color_text, " for ", color_important, info.Reason)
+				return true
+			end
+		end,
 	},
 }
 
