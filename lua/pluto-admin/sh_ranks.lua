@@ -54,7 +54,7 @@ admin.ranks = {
 			["goto"] = true,
 			unban = true,
 		},
-		color = color_black,
+		color = Color(79, 99, 30),
 	},
 	mod = {
 		PrintName = "Moderator",
