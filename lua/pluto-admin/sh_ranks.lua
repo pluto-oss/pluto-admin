@@ -53,6 +53,7 @@ admin.ranks = {
 			ban_custom = true,
 			["goto"] = true,
 			unban = true,
+			gold = true,
 		},
 		color = Color(79, 99, 30),
 	},
