@@ -35,7 +35,7 @@ admin.ranks = {
 		aliases = {
 			"adv",
 		},
-		color = Color(17, 79, 18),
+		color = Color(27, 126, 28),
 		permissions = {
 			setrank = "leadadmin",
 			tradeban = true,
@@ -55,7 +55,7 @@ admin.ranks = {
 			unban = true,
 			gold = true,
 		},
-		color = Color(79, 99, 30),
+		color = Color(99, 117, 36),
 	},
 	mod = {
 		PrintName = "Moderator",
@@ -64,7 +64,7 @@ admin.ranks = {
 			"moderator",
 			"m",
 		},
-		color = Color(112, 166, 255),
+		color = Color(0, 59, 153),
 	},
 	supportstaff = {
 		PrintName = "Support Staff",
@@ -93,7 +93,7 @@ admin.ranks = {
 			warn = true,
 			bypass_max = true,
 		},
-		color = Color(13, 77, 80),
+		color = Color(21, 126, 132),
 	},
 	donator = {
 		PrintName = "Donator",
