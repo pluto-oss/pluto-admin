@@ -52,14 +52,17 @@ loadall {
 		"args/time.lua",
 		"args/cmd.lua",
 		"sh_commands.lua",
+
 	},
 	Server = {
 		"sv_commands.lua",
 		"sv_db.lua",
+		"block/sv_block.lua",
 	},
 	Client = {
 		"cl_cmd.lua",
 		"cl_commands.lua",
+		"block/cl_block.lua",
 	},
 	Resources = {
 

@@ -8,7 +8,9 @@ hook.Add("PlutoDatabaseInitialize", "pluto_admin_init", function(db)
 				last_join TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 				time_played INT UNSIGNED NOT NULL DEFAULT 0,
 				last_server INT UNSIGNED NOT NULL,
-				displayname VARCHAR(64) NOT NULL
+				displayname VARCHAR(64) NOT NULL,
+				experience INT UNSIGNED NOT NULL DEFAULT 0,
+				tokens INT UNSIGNED NOT NULL DEFAULT 0
 			)]]
 		:AddQuery [[
 			CREATE TABLE IF NOT EXISTS pluto_punishments (
@@ -79,7 +81,7 @@ hook.Add("PlutoDatabaseInitialize", "pluto_admin_init", function(db)
 				CALL pluto_punish('ban', user, actor, _reason, seconds);
 			END]]
 		:AddQuery [[
-			CREATE TABLE IF NOT EXISTS pluto_blocks (blocker BIGINT UNSIGNED NOT NULL, blockee BIGINT UNSIGNED NOT NULL, PRIMARY KEY (blocker, blockee), INDEX(blocker))
+			CREATE TABLE IF NOT EXISTS pluto_blocks (blocker BIGINT UNSIGNED NOT NULL, blockee BIGINT UNSIGNED NOT NULL, type INT UNSIGNED NOT NULL, PRIMARY KEY (blocker, blockee, type), INDEX(blocker))
 		]]
 		:AddQuery [[
 			CREATE PROCEDURE IF NOT EXISTS pluto_warn (
