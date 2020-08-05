@@ -49,6 +49,10 @@ hook.Add("TTTRWUpdateVoiceState", "pluto_block", function(ply, cache)
 end)
 
 hook.Add("PlayerCanSeePlayersChat", "pluto_block", function(text, _, listener, speaker)
+	if (not IsValid(speaker)) then
+		return
+	end
+
 	if (not admin.blocks[listener]) then
 		return
 	end
