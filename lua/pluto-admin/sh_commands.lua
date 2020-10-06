@@ -194,36 +194,31 @@ admin.commands = {
 				WHERE effected_user = ?", {info.Player}, function(err, q, d)
 
 				printf("Past offences for %s:", info.Player)
-				offenses = {
-					bans = {},
-					warns = {}
-				}
+				local offenses = {}
 				for i, offense in pairs(d) do
-					if (offense.punishment == "ban") then
-						table.insert(offenses.bans, offense)
-					elseif (offense.punishment == "warn") then
-						table.insert(offenses.warns, offense)
+					if (not offenses[offense.punishment]) then
+						offenses[offense.punishment] = {}
+					end
+					table.insert(offenses[offense.punishment], offense)
+				end
+
+				print "a"
+
+				for type, punishments in pairs(offenses) do
+
+					printf("---------------------- " .. type .. " ----------------------")
+					for i, log in ipairs(punishments) do
+						printf("%i: %s %s\n\t%s [%s] was affected at %s by %s [%s]\n\t\tLength: %s\n\t\tReason: %s", i, log.punishment, log.unbanned == 1 and "(REVOKED)" or log.expired == 1 and "(EXPIRED)" or "",
+						log.banned_name, log.banned_user, log.bantime, log.banner_name or "???", log.banner, log.ban_diff == 0 and "Permanent" or log.ban_diff .. " seconds", log.reason)
+
+						if (log.unbanned == 1) then
+							printf("\n\t\tUndone by %s [%s]: %s", log.unbanner_name or "CONSOLE", log.unbanned_by, log.unban_reason)
+						end
+
+						printf "\n"
 					end
 				end
 
-				printf("---------------------- BANS ----------------------")
-				for i, ban in pairs(offenses.bans) do
-					printf("%i: %s %s\n\t%s [%s] was banned at %s by %s [%s]\n\t\tLength: %s\n\t\tReason: %s", i, ban.punishment, ban.unbanned == 1 and "(REVOKED)" or ban.expired == 1 and "(EXPIRED)" or "",
-						ban.banned_name, ban.banned_user, ban.bantime, ban.banner_name or "???", ban.banner, ban.ban_diff == 0 and "Permanent" or ban.ban_diff .. " seconds", ban.reason)
-
-					if (ban.unbanned == 1) then
-						printf("\n\t\tUnbanned by %s [%s]: %s", ban.unbanner_name or "CONSOLE", ban.unbanned_by, ban.unban_reason)
-					end
-
-					printf "\n"
-				end
-
-				printf("---------------------- WARNS ---------------------")
-
-				for i, warn in pairs(offenses.warns) do
-					printf("%i: %s %s\n\t%s [%s] was warned at %s by %s [%s]\n\t\tReason: %s", i, warn.punishment, warn.unbanned == 1 and "(REVOKED)" or warn.expired == 1 and "(EXPIRED)" or "",
-					warn.banned_name, warn.banned_user, warn.bantime, warn.banner_name or "???", warn.banner, warn.reason)
-				end
 			end)
 
 			return true
