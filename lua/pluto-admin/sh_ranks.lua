@@ -100,7 +100,8 @@ admin.ranks = {
 		inherits = "user",
 		permissions = {
 			votemap = true,
-		}
+		},
+		color = Color(0, 176, 18),
 	},
 	user = {
 		PrintName = "User",
