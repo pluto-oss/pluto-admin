@@ -1,37 +1,7 @@
 util.AddNetworkString "pluto-admin-cmd"
 
 function admin.chatf(...)
-	net.Start "pluto-admin-cmd"
-		net.WriteUInt(select("#", ...), 8)
-		for i = 1, select("#", ...) do
-			local arg = select(i, ...)
-			if (IsColor(arg)) then
-				net.WriteBool(false)
-				net.WriteColor(arg)
-			else
-				net.WriteBool(true)
-				net.WriteString(tostring(arg))
-			end
-		end
-	net.Broadcast()
-end
-
-local PLAYER = FindMetaTable "Player"
-
-function PLAYER:AdminChat(...)
-	net.Start "pluto-admin-cmd"
-		net.WriteUInt(select("#", ...), 8)
-		for i = 1, select("#", ...) do
-			local arg = select(i, ...)
-			if (IsColor(arg)) then
-				net.WriteBool(false)
-				net.WriteColor(arg)
-			else
-				net.WriteBool(true)
-				net.WriteString(tostring(arg))
-			end
-		end
-	net.Send(self)
+	ttt.chat(...)
 end
 
 net.Receive("pluto-admin-cmd", function(len, cl)
