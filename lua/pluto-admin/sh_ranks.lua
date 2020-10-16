@@ -40,6 +40,7 @@ admin.ranks = {
 			setrank = "leadadmin",
 			tradeban = true,
 			questban = true,
+			unquestban = true,
 		},
 	},
 	admin = {
