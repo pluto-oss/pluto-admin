@@ -183,6 +183,10 @@ hook.Add("PlayerAuthed", "pluto_admin", function(ply)
 
 			prev.Reason = data.reason
 			prev.Ending = math.max(prev.Ending or 0, data.seconds_remaining == 0 and math.huge or os.time() + data.seconds_remaining)
+
+			if (prev.Ending > os.time() and admin["run" .. data.punishment]) then
+				admin["run" .. data.punishment](ply, prev)
+			end
 		end
 	end)
 end)

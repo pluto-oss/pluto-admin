@@ -16,6 +16,41 @@ local function name(x)
 	return x
 end
 
+local function timename(playtime)
+	local length = ""
+
+	if (playtime % 60 ~= 0) then
+		length = playtime % 60 .. " seconds "
+	end
+	playtime = math.floor(playtime / 60)
+
+	if (playtime % 60 ~= 0) then
+		length = playtime % 60 .. " minutes " .. length
+	end
+	playtime = math.floor(playtime / 60)
+
+	if (playtime % 24 ~= 0) then
+		length = playtime % 24 .. " hours " .. length
+	end
+	playtime = math.floor(playtime / 24)
+
+	if (playtime % 7 ~= 0) then
+		length = playtime % 7 .. " days " .. length
+	end
+	playtime = math.floor(playtime / 7)
+
+	if (playtime % 4 ~= 0) then
+		length = playtime % 4 .. " weeks " .. length
+	end
+	playtime = math.floor(playtime / 4)
+
+	if (playtime ~= 0) then
+		length = playtime .. " months " .. length
+	end
+
+	return length:sub(1, -2)
+end
+
 admin.commands = {
 	slay = {
 		args = {
@@ -244,37 +279,8 @@ admin.commands = {
 			pluto.db.query("SELECT time_played FROM pluto_player_info WHERE steamid = ?", {user:SteamID64()}, function(err, q, d)
 				playtime = d[1].time_played
 
-				length = ""
+				local length = timename(playtime)
 
-				if (playtime % 60 ~= 0) then
-					length = playtime % 60 .. " seconds "
-				end
-				playtime = math.floor(playtime / 60)
-
-				if (playtime % 60 ~= 0) then
-					length = playtime % 60 .. " minutes " .. length
-				end
-				playtime = math.floor(playtime / 60)
-
-				if (playtime % 24 ~= 0) then
-					length = playtime % 24 .. " hours " .. length
-				end
-				playtime = math.floor(playtime / 24)
-
-				if (playtime % 7 ~= 0) then
-					length = playtime % 7 .. " days " .. length
-				end
-				playtime = math.floor(playtime / 7)
-
-				if (playtime % 4 ~= 0) then
-					length = playtime % 4 .. " weeks " .. length
-				end
-				playtime = math.floor(playtime / 4)
-
-				if (playtime ~= 0) then
-					length = playtime .. " months " .. length
-				end
-				
 				user:ChatPrint("You have played " .. length)
 			end)
 
@@ -327,7 +333,7 @@ local function punishment(n)
 			else
 				admin.punish(n, info.Player, info.Reason, info.Time, user)
 			end
-			admin.chatf(color_name, user:Nick(), color_text, " has ran " .. n .. " on ", color_name, name(info.Player), color_text, ": ", color_important, info.Reason)
+			admin.chatf(color_name, user:Nick(), color_text, " used ", color_important, n, color_text, " on ", color_name, name(info.Player), color_text, "\nIt was ", color_important, "super effective", color_text, " for ", timename(info.Time), ": ", color_important, info.Reason)
 
 			return true
 		end
@@ -351,7 +357,7 @@ local function punishment(n)
 				admin.punish_revoke(n, info.Player, info.Reason, user)
 			end
 
-			admin.chatf(color_name, user:Nick(), color_text, " has ran un" .. n .. " on ", color_name, name(info.Player), color_text, ": ", color_important, info.Reason)
+			admin.chatf(color_name, user:Nick(), color_text, " used " .. n .. " on ", color_name, name(info.Player), color_text, ": ", color_important, info.Reason)
 			return true
 		end
 	}
@@ -362,6 +368,20 @@ punishment "ban"
 punishment "mute"
 punishment "gag"
 punishment "questban"
+
+function admin.questban(ply, reason, time, user)
+	admin.punish("questban", ply, reason, time, user)
+	ply = player.GetBySteamID64(ply)
+	if (IsValid(ply)) then
+		ply:SetNWString("pluto_questban", reason)
+	end
+end
+
+function admin.runquestban(ply, prev)
+	if (IsValid(ply)) then
+		ply:SetNWString("pluto_questban", prev.Reason)
+	end
+end
 
 hook.Add("TTTRemoveIneligiblePlayers", "admin_slaynr", function(plys)
 	local remove = {}
