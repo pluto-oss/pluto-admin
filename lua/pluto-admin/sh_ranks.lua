@@ -39,6 +39,7 @@ admin.ranks = {
 		permissions = {
 			setrank = "leadadmin",
 			tradeban = true,
+			questban = true,
 		},
 	},
 	admin = {

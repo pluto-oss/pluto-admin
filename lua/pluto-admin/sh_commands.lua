@@ -361,6 +361,7 @@ punishment "ban"
 
 punishment "mute"
 punishment "gag"
+punishment "questban"
 
 hook.Add("TTTRemoveIneligiblePlayers", "admin_slaynr", function(plys)
 	local remove = {}
