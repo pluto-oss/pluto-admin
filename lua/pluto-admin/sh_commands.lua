@@ -333,7 +333,7 @@ local function punishment(n)
 			else
 				admin.punish(n, info.Player, info.Reason, info.Time, user)
 			end
-			admin.chatf(color_name, user:Nick(), color_text, " used ", color_important, n, color_text, " on ", color_name, name(info.Player), color_text, "\nIt was ", color_important, "super effective", color_text, " for ", timename(info.Time), ": ", color_important, info.Reason)
+			admin.chatf(color_name, user:Nick(), color_text, " used ", color_important, n, color_text, " on ", color_name, name(info.Player), color_text, "\nIt was ", color_important, "super effective", color_text, " for ", timename(info.Time * 60), ": ", color_important, info.Reason)
 
 			return true
 		end
