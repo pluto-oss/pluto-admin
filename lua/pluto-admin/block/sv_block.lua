@@ -1,7 +1,7 @@
 util.AddNetworkString "pluto_block"
 
 admin.blocks = admin.blocks or setmetatable({}, {__mode = "k"})
-admin.block_cache = {}
+admin.steamid_cache = admin.steamid_cache or setmetatable({}, {__mode="v"})
 
 local modes = {
 	[true] = "Voice",
@@ -42,8 +42,9 @@ hook.Add("TTTRWUpdateVoiceState", "pluto_block", function(ply, cache)
 	end
 
 	for oply, blocked in pairs(admin.blocks[ply].Voice) do
-		if (admin.block_cache[oply]) then
-			cache[admin.block_cache[oply]] = false
+		local other = admin.steamid_cache[oply]
+		if (IsValid(other)) then
+			cache[other] = false
 		end
 	end
 end)
@@ -73,7 +74,7 @@ local db_modes = {
 hook.Add("PlayerAuthed", "pluto_block", function(p, stmd)
 	stmd = util.SteamIDTo64(stmd)
 
-	admin.block_cache[stmd] = p
+	admin.steamid_cache[stmd] = p
 
 	admin.blocks[p] = admin.blocks[p] or {Voice = {}, Chat = {}}
 	pluto.db.query("SELECT CAST(blockee AS CHAR) as blockee, type FROM pluto_blocks WHERE blocker = ?", {stmd}, function(_, _, data)
