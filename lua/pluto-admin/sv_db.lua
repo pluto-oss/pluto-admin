@@ -134,12 +134,12 @@ function admin.updatetime(ply)
 	local add = os.time() - ply.AdminJoin
 	ply.AdminJoin = os.time()
 
-	pluto.db.query("UPDATE pluto_player_info SET time_played = time_played + ? WHERE steamid = ?", {add, pluto.db.steamid64(ply)}, function() end)
+	pluto.db.simplequery("UPDATE pluto_player_info SET time_played = time_played + ? WHERE steamid = ?", {add, pluto.db.steamid64(ply)}, function() end)
 end
 
 function admin.setrank(ply, rank)
-	pluto.db.query("UPDATE pluto_player_info SET rank = ? WHERE steamid = ?", {rank, pluto.db.steamid64(ply)}, function(err, q)
-		if (err) then
+	pluto.db.simplequery("UPDATE pluto_player_info SET rank = ? WHERE steamid = ?", {rank, pluto.db.steamid64(ply)}, function(d)
+		if (not d) then
 			return
 		end
 
@@ -167,14 +167,14 @@ hook.Add("PlayerAuthed", "pluto_admin", function(ply)
 
 	ply.Punishments = {}
 	
-	pluto.db.query("SELECT reason, punishment, IF(endtime IS NULL, 0, TIMESTAMPDIFF(SECOND, CURRENT_TIMESTAMP, endtime)) as seconds_remaining\
+	pluto.db.simplequery("SELECT reason, punishment, IF(endtime IS NULL, 0, TIMESTAMPDIFF(SECOND, CURRENT_TIMESTAMP, endtime)) as seconds_remaining\
 	FROM pluto_punishments \
-	WHERE effected_user = ? AND NOT (revoked = TRUE OR endtime IS NOT NULL AND endtime <= CURRENT_TIMESTAMP)", {pluto.db.steamid64(ply)}, function(err, q)
-		if (err or not IsValid(ply)) then
+	WHERE effected_user = ? AND NOT (revoked = TRUE OR endtime IS NOT NULL AND endtime <= CURRENT_TIMESTAMP)", {pluto.db.steamid64(ply)}, function(d)
+		if (not d or not IsValid(ply)) then
 			return
 		end
 
-		for _, data in pairs(q:getData()) do
+		for _, data in pairs(d) do
 			local prev = ply.Punishments[data.punishment]
 			if (not prev) then
 				prev = {}
@@ -195,7 +195,7 @@ function admin.punish(type, ply, reason, minutes, actor, cb)
 	local steamid = pluto.db.steamid64(ply)
 	actor = actor ~= 0 and actor and pluto.db.steamid64(actor) or 0
 
-	pluto.db.query("CALL pluto_punish(?, ?, ?, ?, ?)", {type, steamid, actor, reason, math.floor(minutes * 60)}, cb or function() end)
+	pluto.db.simplequery("CALL pluto_punish(?, ?, ?, ?, ?)", {type, steamid, actor, reason, math.floor(minutes * 60)}, cb or function() end)
 
 	local p = player.GetBySteamID64(steamid)
 
@@ -217,11 +217,7 @@ function admin.punish_revoke(type, ply, reason, revoker)
 	revoker = revoker and pluto.db.steamid64(revoker) or 0
 	ply = ply and pluto.db.steamid64(ply) or 0
 
-	pluto.db.query("CALL pluto_punish_revoke(?, ?, ?, ?)", {type, ply, revoker, reason or ""}, function(err, q)
-		if (err) then
-			return
-		end
-	end)
+	pluto.db.simplequery("CALL pluto_punish_revoke(?, ?, ?, ?)", {type, ply, revoker, reason or ""}, function(d) end)
 
 	local p = player.GetBySteamID64(ply)
 
@@ -246,17 +242,19 @@ function admin.unban(ply, reason, unbanner)
 end
 
 hook.Add("CheckPassword", "pluto_bans", function(sid)
-	pluto.db.query("SELECT reason, CAST(acting_user AS CHAR) as banner, IF(endtime IS NULL, 0, TIMESTAMPDIFF(SECOND, CURRENT_TIMESTAMP, endtime)) as seconds_remaining,\
+	pluto.db.simplequery("SELECT reason, CAST(acting_user AS CHAR) as banner, IF(endtime IS NULL, 0, TIMESTAMPDIFF(SECOND, CURRENT_TIMESTAMP, endtime)) as seconds_remaining,\
 		actor.displayname as acting_name \
 		FROM pluto_punishments \
 		LEFT OUTER JOIN pluto_player_info actor ON actor.steamid = pluto_punishments.acting_user\
-		WHERE effected_user = ? AND punishment = 'ban' AND NOT (revoked = TRUE OR endtime IS NOT NULL AND endtime <= CURRENT_TIMESTAMP)", {sid}, function(err, q)
+		WHERE effected_user = ? AND punishment = 'ban' AND NOT (revoked = TRUE OR endtime IS NOT NULL AND endtime <= CURRENT_TIMESTAMP)", {sid}, function(data)
 
-		if (err) then
+			print "RET"
+		if (not data or not data[1]) then
 			return
 		end
 
-		local data = q:getData()[1]
+		print "DATA:"
+		PrintTable(data)
 
 		if (data) then
 			game.KickID(util.SteamIDFrom64(sid), admin.formatban(data.reason, data.acting_name, data.banner, data.seconds_remaining))

@@ -24,9 +24,9 @@ net.Receive("pluto_block", function(len, cl)
 
 
 	if (block) then
-		pluto.db.query("INSERT INTO pluto_blocks (blocker, blockee, type) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE type = type", {scl, sply, type}, function() end)
+		pluto.db.simplequery("INSERT INTO pluto_blocks (blocker, blockee, type) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE type = type", {scl, sply, type}, function() end)
 	else
-		pluto.db.query("DELETE FROM pluto_blocks WHERE blocker = ? AND blockee = ? AND type = ?", {scl, sply, type}, function() end)
+		pluto.db.simplequery("DELETE FROM pluto_blocks WHERE blocker = ? AND blockee = ? AND type = ?", {scl, sply, type}, function() end)
 	end
 
 	net.Start "pluto_block"
@@ -77,7 +77,7 @@ hook.Add("PlayerAuthed", "pluto_block", function(p, stmd)
 	admin.steamid_cache[stmd] = p
 
 	admin.blocks[p] = admin.blocks[p] or {Voice = {}, Chat = {}}
-	pluto.db.query("SELECT CAST(blockee AS CHAR) as blockee, type FROM pluto_blocks WHERE blocker = ?", {stmd}, function(_, _, data)
+	pluto.db.simplequery("SELECT CAST(blockee AS CHAR) as blockee, type FROM pluto_blocks WHERE blocker = ?", {stmd}, function(data)
 		if (not IsValid(p)) then
 			return
 		end
