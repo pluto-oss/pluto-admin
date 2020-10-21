@@ -133,7 +133,6 @@ admin.commands = {
 				usergroup = CAMI.GetUsergroup(usergroup.Inherits)
 
 				if (usergroup and usergroup.Name == notallowed) then
-					print(usergroup.Name, notallowed)
 					return false
 				end
 			end
@@ -234,7 +233,7 @@ admin.commands = {
 
 				printf("Past offences for %s:", info.Player)
 				local offenses = {}
-				for i, offense in pairs(d) do
+				for i, offense in ipairs(d) do
 					if (not offenses[offense.punishment]) then
 						offenses[offense.punishment] = {}
 					end

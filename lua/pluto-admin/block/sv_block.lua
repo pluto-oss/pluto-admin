@@ -82,7 +82,7 @@ hook.Add("PlayerAuthed", "pluto_block", function(p, stmd)
 			return
 		end
 
-		for _, d in pairs(data) do
+		for _, d in ipairs(data) do
 			admin.blocks[p][db_modes[d.type]][d.blockee] = true
 			net.Start "pluto_block"
 				net.WriteString(d.blockee)

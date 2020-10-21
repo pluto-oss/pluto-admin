@@ -1,6 +1,6 @@
-hook.Add("PlutoDatabaseInitialize", "pluto_admin_init", function(db)
-	pluto.db.transact()
-		:AddQuery [[
+hook.Add("PlutoDatabaseInitialize", "pluto_admin_init", function()
+	pluto.db.instance(function(db)
+		mysql_query(db, [[
 			CREATE TABLE IF NOT EXISTS pluto_player_info (
 				steamid BIGINT UNSIGNED NOT NULL PRIMARY KEY,
 				rank VARCHAR(16) NOT NULL DEFAULT "user",
@@ -11,8 +11,9 @@ hook.Add("PlutoDatabaseInitialize", "pluto_admin_init", function(db)
 				displayname VARCHAR(64) NOT NULL,
 				experience INT UNSIGNED NOT NULL DEFAULT 0,
 				tokens INT UNSIGNED NOT NULL DEFAULT 0
-			)]]
-		:AddQuery [[
+			)
+		]])
+		mysql_query(db, [[
 			CREATE TABLE IF NOT EXISTS pluto_punishments (
 				idx INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
 
@@ -32,8 +33,9 @@ hook.Add("PlutoDatabaseInitialize", "pluto_admin_init", function(db)
 				revoke_reason VARCHAR(255),
 
 				INDEX USING HASH(effected_user)
-			)]]
-		:AddQuery [[
+			)
+		]])
+		mysql_query(db, [[
 			CREATE PROCEDURE IF NOT EXISTS pluto_punish (
 				_punishment VARCHAR(16),
 				user BIGINT UNSIGNED,
@@ -55,8 +57,9 @@ hook.Add("PlutoDatabaseInitialize", "pluto_admin_init", function(db)
 				ELSE
 					UPDATE pluto_punishments SET updating_user = user, reason = _reason, endtime = _endtime WHERE idx = i;
 				END IF;
-			END]]
-		:AddQuery [[
+			END
+		]])
+		mysql_query(db, [[
 			CREATE PROCEDURE IF NOT EXISTS pluto_punish_revoke (
 				_punishment VARCHAR(16),
 				user BIGINT UNSIGNED,
@@ -70,8 +73,9 @@ hook.Add("PlutoDatabaseInitialize", "pluto_admin_init", function(db)
 				IF i != 0 THEN
 					UPDATE pluto_punishments SET revoking_user = revoker, revoke_reason = _reason, revoked = TRUE WHERE idx = i;
 				END IF;
-			END]]
-		:AddQuery [[
+			END
+		]])
+		mysql_query(db, [[
 			CREATE PROCEDURE IF NOT EXISTS pluto_ban (
 				user BIGINT UNSIGNED,
 				actor BIGINT UNSIGNED,
@@ -79,20 +83,21 @@ hook.Add("PlutoDatabaseInitialize", "pluto_admin_init", function(db)
 				seconds INT UNSIGNED
 			) BEGIN
 				CALL pluto_punish('ban', user, actor, _reason, seconds);
-			END]]
-		:AddQuery [[
+			END
+		]])
+		mysql_query(db, [[
 			CREATE TABLE IF NOT EXISTS pluto_blocks (blocker BIGINT UNSIGNED NOT NULL, blockee BIGINT UNSIGNED NOT NULL, type INT UNSIGNED NOT NULL, PRIMARY KEY (blocker, blockee, type), INDEX(blocker))
-		]]
-		:AddQuery [[
+		]])
+		mysql_query(db, [[
 			CREATE PROCEDURE IF NOT EXISTS pluto_warn (
 				user BIGINT UNSIGNED,
 				actor BIGINT UNSIGNED,
 				_reason VARCHAR(255)
 			) BEGIN
 				CALL pluto_punish('warn', user, actor, _reason, 0);
-			END]]
-		:Halt()
-		:Run()
+			END
+		]])
+	end)
 end)
 
 function admin.formatban(reason, banner_name, banner, length)
@@ -113,16 +118,18 @@ function admin.getrank(ply, cb)
 		nick = p:Nick()
 	end
 
-	pluto.db.transact()
-		:AddQuery("INSERT INTO pluto_player_info (steamid, displayname, last_server) VALUES (?, ?, INET_ATON(?)) ON DUPLICATE KEY UPDATE displayname = VALUE(displayname), last_server = VALUE(last_server), last_join = CURRENT_TIMESTAMP", {ply, nick, game.GetIPAddress():match"^[^:]+"})
-		:AddQuery(
-			"SELECT rank FROM pluto_player_info WHERE steamid = ?",
-			{ply},
-			function(err, q)
-				return cb(not err and q:getData()[1].rank or "user")
-			end
-		)
-		:Run()
+	pluto.db.simplequery([[
+			INSERT INTO pluto_player_info (steamid, displayname, last_server) VALUES 
+				(?, ?, INET_ATON(?)) 
+				ON DUPLICATE KEY UPDATE displayname = VALUE(displayname), 
+					last_server = VALUE(last_server),
+					last_join = CURRENT_TIMESTAMP
+		]], {ply, nick, game.GetIPAddress():match"^[^:]+"}
+	)
+
+	pluto.db.simplequery("SELECT rank FROM pluto_player_info WHERE steamid = ?", {ply}, function(dat, err)
+		cb(dat and dat[1] and dat[1].rank or "user")
+	end)
 end
 
 function admin.updatetime(ply)
@@ -174,7 +181,7 @@ hook.Add("PlayerAuthed", "pluto_admin", function(ply)
 			return
 		end
 
-		for _, data in pairs(d) do
+		for _, data in ipairs(d) do
 			local prev = ply.Punishments[data.punishment]
 			if (not prev) then
 				prev = {}
@@ -248,17 +255,13 @@ hook.Add("CheckPassword", "pluto_bans", function(sid)
 		LEFT OUTER JOIN pluto_player_info actor ON actor.steamid = pluto_punishments.acting_user\
 		WHERE effected_user = ? AND punishment = 'ban' AND NOT (revoked = TRUE OR endtime IS NOT NULL AND endtime <= CURRENT_TIMESTAMP)", {sid}, function(data)
 
-			print "RET"
 		if (not data or not data[1]) then
 			return
 		end
 
-		print "DATA:"
-		PrintTable(data)
+		data = data[1]
 
-		if (data) then
-			game.KickID(util.SteamIDFrom64(sid), admin.formatban(data.reason, data.acting_name, data.banner, data.seconds_remaining))
-		end
+		game.KickID(util.SteamIDFrom64(sid), admin.formatban(data.reason, data.acting_name, data.banner, data.seconds_remaining))
 	end)
 end)
 
