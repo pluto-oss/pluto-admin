@@ -1,6 +1,6 @@
-hook.Add("PlutoDatabaseInitialize", "pluto_admin_init", function(db)
-	pluto.db.transact()
-		:AddQuery [[
+hook.Add("PlutoDatabaseInitialize", "pluto_admin_init", function()
+	pluto.db.instance(function(db)
+		mysql_query(db, [[
 			CREATE TABLE IF NOT EXISTS pluto_player_info (
 				steamid BIGINT UNSIGNED NOT NULL PRIMARY KEY,
 				rank VARCHAR(16) NOT NULL DEFAULT "user",
@@ -11,8 +11,9 @@ hook.Add("PlutoDatabaseInitialize", "pluto_admin_init", function(db)
 				displayname VARCHAR(64) NOT NULL,
 				experience INT UNSIGNED NOT NULL DEFAULT 0,
 				tokens INT UNSIGNED NOT NULL DEFAULT 0
-			)]]
-		:AddQuery [[
+			)
+		]])
+		mysql_query(db, [[
 			CREATE TABLE IF NOT EXISTS pluto_punishments (
 				idx INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
 
@@ -32,8 +33,9 @@ hook.Add("PlutoDatabaseInitialize", "pluto_admin_init", function(db)
 				revoke_reason VARCHAR(255),
 
 				INDEX USING HASH(effected_user)
-			)]]
-		:AddQuery [[
+			)
+		]])
+		mysql_query(db, [[
 			CREATE PROCEDURE IF NOT EXISTS pluto_punish (
 				_punishment VARCHAR(16),
 				user BIGINT UNSIGNED,
@@ -55,8 +57,9 @@ hook.Add("PlutoDatabaseInitialize", "pluto_admin_init", function(db)
 				ELSE
 					UPDATE pluto_punishments SET updating_user = user, reason = _reason, endtime = _endtime WHERE idx = i;
 				END IF;
-			END]]
-		:AddQuery [[
+			END
+		]])
+		mysql_query(db, [[
 			CREATE PROCEDURE IF NOT EXISTS pluto_punish_revoke (
 				_punishment VARCHAR(16),
 				user BIGINT UNSIGNED,
@@ -70,8 +73,9 @@ hook.Add("PlutoDatabaseInitialize", "pluto_admin_init", function(db)
 				IF i != 0 THEN
 					UPDATE pluto_punishments SET revoking_user = revoker, revoke_reason = _reason, revoked = TRUE WHERE idx = i;
 				END IF;
-			END]]
-		:AddQuery [[
+			END
+		]])
+		mysql_query(db, [[
 			CREATE PROCEDURE IF NOT EXISTS pluto_ban (
 				user BIGINT UNSIGNED,
 				actor BIGINT UNSIGNED,
@@ -79,20 +83,21 @@ hook.Add("PlutoDatabaseInitialize", "pluto_admin_init", function(db)
 				seconds INT UNSIGNED
 			) BEGIN
 				CALL pluto_punish('ban', user, actor, _reason, seconds);
-			END]]
-		:AddQuery [[
+			END
+		]])
+		mysql_query(db, [[
 			CREATE TABLE IF NOT EXISTS pluto_blocks (blocker BIGINT UNSIGNED NOT NULL, blockee BIGINT UNSIGNED NOT NULL, type INT UNSIGNED NOT NULL, PRIMARY KEY (blocker, blockee, type), INDEX(blocker))
-		]]
-		:AddQuery [[
+		]])
+		mysql_query(db, [[
 			CREATE PROCEDURE IF NOT EXISTS pluto_warn (
 				user BIGINT UNSIGNED,
 				actor BIGINT UNSIGNED,
 				_reason VARCHAR(255)
 			) BEGIN
 				CALL pluto_punish('warn', user, actor, _reason, 0);
-			END]]
-		:Halt()
-		:Run()
+			END
+		]])
+	end)
 end)
 
 function admin.formatban(reason, banner_name, banner, length)
@@ -113,16 +118,18 @@ function admin.getrank(ply, cb)
 		nick = p:Nick()
 	end
 
-	pluto.db.transact()
-		:AddQuery("INSERT INTO pluto_player_info (steamid, displayname, last_server) VALUES (?, ?, INET_ATON(?)) ON DUPLICATE KEY UPDATE displayname = VALUE(displayname), last_server = VALUE(last_server), last_join = CURRENT_TIMESTAMP", {ply, nick, game.GetIPAddress():match"^[^:]+"})
-		:AddQuery(
-			"SELECT rank FROM pluto_player_info WHERE steamid = ?",
-			{ply},
-			function(err, q)
-				return cb(not err and q:getData()[1].rank or "user")
-			end
-		)
-		:Run()
+	pluto.db.simplequery([[
+			INSERT INTO pluto_player_info (steamid, displayname, last_server) VALUES 
+				(?, ?, INET_ATON(?)) 
+				ON DUPLICATE KEY UPDATE displayname = VALUE(displayname), 
+					last_server = VALUE(last_server),
+					last_join = CURRENT_TIMESTAMP
+		]], {ply, nick, game.GetIPAddress():match"^[^:]+"}
+	)
+
+	pluto.db.simplequery("SELECT rank FROM pluto_player_info WHERE steamid = ?", {ply}, function(dat, err)
+		cb(dat and dat[1] and dat[1].rank or "user")
+	end)
 end
 
 function admin.updatetime(ply)
@@ -134,12 +141,12 @@ function admin.updatetime(ply)
 	local add = os.time() - ply.AdminJoin
 	ply.AdminJoin = os.time()
 
-	pluto.db.query("UPDATE pluto_player_info SET time_played = time_played + ? WHERE steamid = ?", {add, pluto.db.steamid64(ply)}, function() end)
+	pluto.db.simplequery("UPDATE pluto_player_info SET time_played = time_played + ? WHERE steamid = ?", {add, pluto.db.steamid64(ply)}, function() end)
 end
 
 function admin.setrank(ply, rank)
-	pluto.db.query("UPDATE pluto_player_info SET rank = ? WHERE steamid = ?", {rank, pluto.db.steamid64(ply)}, function(err, q)
-		if (err) then
+	pluto.db.simplequery("UPDATE pluto_player_info SET rank = ? WHERE steamid = ?", {rank, pluto.db.steamid64(ply)}, function(d)
+		if (not d) then
 			return
 		end
 
@@ -167,14 +174,14 @@ hook.Add("PlayerAuthed", "pluto_admin", function(ply)
 
 	ply.Punishments = {}
 	
-	pluto.db.query("SELECT reason, punishment, IF(endtime IS NULL, 0, TIMESTAMPDIFF(SECOND, CURRENT_TIMESTAMP, endtime)) as seconds_remaining\
+	pluto.db.simplequery("SELECT reason, punishment, IF(endtime IS NULL, 0, TIMESTAMPDIFF(SECOND, CURRENT_TIMESTAMP, endtime)) as seconds_remaining\
 	FROM pluto_punishments \
-	WHERE effected_user = ? AND NOT (revoked = TRUE OR endtime IS NOT NULL AND endtime <= CURRENT_TIMESTAMP)", {pluto.db.steamid64(ply)}, function(err, q)
-		if (err or not IsValid(ply)) then
+	WHERE effected_user = ? AND NOT (revoked = TRUE OR endtime IS NOT NULL AND endtime <= CURRENT_TIMESTAMP)", {pluto.db.steamid64(ply)}, function(d)
+		if (not d or not IsValid(ply)) then
 			return
 		end
 
-		for _, data in pairs(q:getData()) do
+		for _, data in ipairs(d) do
 			local prev = ply.Punishments[data.punishment]
 			if (not prev) then
 				prev = {}
@@ -195,7 +202,7 @@ function admin.punish(type, ply, reason, minutes, actor, cb)
 	local steamid = pluto.db.steamid64(ply)
 	actor = actor ~= 0 and actor and pluto.db.steamid64(actor) or 0
 
-	pluto.db.query("CALL pluto_punish(?, ?, ?, ?, ?)", {type, steamid, actor, reason, math.floor(minutes * 60)}, cb or function() end)
+	pluto.db.simplequery("CALL pluto_punish(?, ?, ?, ?, ?)", {type, steamid, actor, reason, math.floor(minutes * 60)}, cb or function() end)
 
 	local p = player.GetBySteamID64(steamid)
 
@@ -217,11 +224,7 @@ function admin.punish_revoke(type, ply, reason, revoker)
 	revoker = revoker and pluto.db.steamid64(revoker) or 0
 	ply = ply and pluto.db.steamid64(ply) or 0
 
-	pluto.db.query("CALL pluto_punish_revoke(?, ?, ?, ?)", {type, ply, revoker, reason or ""}, function(err, q)
-		if (err) then
-			return
-		end
-	end)
+	pluto.db.simplequery("CALL pluto_punish_revoke(?, ?, ?, ?)", {type, ply, revoker, reason or ""}, function(d) end)
 
 	local p = player.GetBySteamID64(ply)
 
@@ -237,7 +240,7 @@ function admin.ban(ply, reason, minutes, banner)
 	admin.punish("ban", steamid, reason, minutes, banner)
 	local ply = player.GetBySteamID64(steamid)
 	if (IsValid(ply)) then
-		ply:Kick(reason)
+		ply:Kick(admin.formatban(reason, banner:Nick(), banner:SteamID64(), minutes * 60))
 	end
 end
 
@@ -246,21 +249,19 @@ function admin.unban(ply, reason, unbanner)
 end
 
 hook.Add("CheckPassword", "pluto_bans", function(sid)
-	pluto.db.query("SELECT reason, CAST(acting_user AS CHAR) as banner, IF(endtime IS NULL, 0, TIMESTAMPDIFF(SECOND, CURRENT_TIMESTAMP, endtime)) as seconds_remaining,\
+	pluto.db.simplequery("SELECT reason, CAST(acting_user AS CHAR) as banner, IF(endtime IS NULL, 0, TIMESTAMPDIFF(SECOND, CURRENT_TIMESTAMP, endtime)) as seconds_remaining,\
 		actor.displayname as acting_name \
 		FROM pluto_punishments \
 		LEFT OUTER JOIN pluto_player_info actor ON actor.steamid = pluto_punishments.acting_user\
-		WHERE effected_user = ? AND punishment = 'ban' AND NOT (revoked = TRUE OR endtime IS NOT NULL AND endtime <= CURRENT_TIMESTAMP)", {sid}, function(err, q)
+		WHERE effected_user = ? AND punishment = 'ban' AND NOT (revoked = TRUE OR endtime IS NOT NULL AND endtime <= CURRENT_TIMESTAMP)", {sid}, function(data)
 
-		if (err) then
+		if (not data or not data[1]) then
 			return
 		end
 
-		local data = q:getData()[1]
+		data = data[1]
 
-		if (data) then
-			game.KickID(util.SteamIDFrom64(sid), admin.formatban(data.reason, data.acting_name, data.banner, data.seconds_remaining))
-		end
+		game.KickID(util.SteamIDFrom64(sid), admin.formatban(data.reason, data.acting_name, data.banner, data.seconds_remaining))
 	end)
 end)
 

@@ -133,7 +133,6 @@ admin.commands = {
 				usergroup = CAMI.GetUsergroup(usergroup.Inherits)
 
 				if (usergroup and usergroup.Name == notallowed) then
-					print(usergroup.Name, notallowed)
 					return false
 				end
 			end
@@ -215,7 +214,7 @@ admin.commands = {
 				end
 			end
 
-			pluto.db.query("SELECT CAST(effected_user as CHAR) as banned_user, CAST(acting_user as CHAR) as banner, starttime as bantime, endtime, reason,\
+			pluto.db.simplequery("SELECT CAST(effected_user as CHAR) as banned_user, CAST(acting_user as CHAR) as banner, starttime as bantime, endtime, reason,\
 				IF(endtime IS NOT NULL, TIMESTAMPDIFF(SECOND, starttime, endtime), 0) as ban_diff,\
 				(endtime < CURRENT_TIMESTAMP) as expired,\
 				_banned.displayname as banned_name, _updater.displayname as updater_name, _banner.displayname as banner_name, _unbanner.displayname as unbanner_name,\
@@ -226,11 +225,15 @@ admin.commands = {
 				LEFT OUTER JOIN pluto_player_info _banner ON _banner.steamid = pluto_punishments.acting_user\
 				LEFT OUTER JOIN pluto_player_info _unbanner ON _unbanner.steamid = pluto_punishments.revoking_user\
 				LEFT OUTER JOIN pluto_player_info _updater ON _updater.steamid = pluto_punishments.updating_user\
-				WHERE effected_user = ?", {info.Player}, function(err, q, d)
+				WHERE effected_user = ?", {info.Player}, function(d)
+
+				if (not d) then
+					return
+				end
 
 				printf("Past offences for %s:", info.Player)
 				local offenses = {}
-				for i, offense in pairs(d) do
+				for i, offense in ipairs(d) do
 					if (not offenses[offense.punishment]) then
 						offenses[offense.punishment] = {}
 					end
@@ -276,7 +279,7 @@ admin.commands = {
 	playtime = {
 		args = {},
 		Do = function(user, info)
-			pluto.db.query("SELECT time_played FROM pluto_player_info WHERE steamid = ?", {user:SteamID64()}, function(err, q, d)
+			pluto.db.simplequery("SELECT time_played FROM pluto_player_info WHERE steamid = ?", {user:SteamID64()}, function(d)
 				playtime = d[1].time_played
 
 				local length = timename(playtime)
@@ -302,7 +305,11 @@ admin.commands = {
 			local ply = player.GetBySteamID64(info.Player)
 
 			if (IsValid(ply)) then
-				pluto.db.query("CALL pluto_warn(?, ?, ?)", {ply:SteamID64(), user:SteamID64(), info.Reason}, function() end)
+				pluto.db.simplequery("CALL pluto_warn(?, ?, ?)", {ply:SteamID64(), user:SteamID64(), info.Reason}, function(d, err)
+					if (not d) then
+						pwarnf("pluto_warn err: %s", err)
+					end
+				end)
 
 				admin.chatf(color_name, user:Nick(), color_text, " warned ", color_name, name(info.Player), color_text, " for ", color_important, info.Reason)
 				return true
