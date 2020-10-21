@@ -240,7 +240,7 @@ function admin.ban(ply, reason, minutes, banner)
 	admin.punish("ban", steamid, reason, minutes, banner)
 	local ply = player.GetBySteamID64(steamid)
 	if (IsValid(ply)) then
-		ply:Kick(reason)
+		ply:Kick(admin.formatban(reason, banner:Nick(), banner:SteamID64(), minutes * 60))
 	end
 end
 
