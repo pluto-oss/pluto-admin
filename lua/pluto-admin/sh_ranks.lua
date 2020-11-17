@@ -5,7 +5,7 @@ admin.ranks = {
 		aliases = {
 			"dev",
 		},
-		color = Color(136, 21, 22),
+		color = Color(0xf5, 0x2a, 0xa7),
 		permissions = {
 			setrank = "developer",
 			ac = true,

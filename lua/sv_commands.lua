@@ -68,7 +68,7 @@ hook.Add("PlayerSay", "pluto_admin_chat", function(ply, text, team)
 	for _, oply in pairs(player.GetAll()) do
 		if (oply == ply or admin.hasperm(oply:GetUserGroup(), "rdm")) then
 			pluto.inv.message(oply)
-				:write("chatmessage", msg, "admin")
+				:write("chatmessage", msg, "Admin")
 			:send()
 		end
 	end
