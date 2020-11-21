@@ -54,6 +54,7 @@ admin.ranks = {
 			bring = true,
 			ban_custom = true,
 			["goto"] = true,
+			unafk = true,
 			unban = true,
 			gold = true,
 		},

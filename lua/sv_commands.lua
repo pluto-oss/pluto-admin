@@ -1,4 +1,5 @@
 util.AddNetworkString "pluto-admin-cmd"
+util.AddNetworkString "pluto-admin-afk"
 
 function admin.chatf(...)
 	ttt.chat(...)

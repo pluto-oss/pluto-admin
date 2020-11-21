@@ -11,6 +11,10 @@ net.Receive("pluto-admin-cmd", function(len, cl)
 	chat.AddText(unpack(stuff))
 end)
 
+net.Receive("pluto-admin-afk", function(len, cl)
+	GetConVar("tttrw_afk"):SetBool(net.ReadBool())
+end)
+
 hook.Add("PlutoGetChatCommand", "pluto_admin_command", function(text)
 	local texts = string.Explode(" ", text)
 	local cmd = table.remove(texts, 1)

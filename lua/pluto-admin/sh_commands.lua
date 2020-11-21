@@ -286,7 +286,7 @@ admin.commands = {
 		},
 		Do = function(user, info)
 			local rank = admin.ranks[user:GetUserGroup()]
-			if (rank) then
+			if (rank and info.Message and info.Message ~= "") then
 				admin.chatf(white_text, "[", rank.color, rank.PrintName, white_text, "]: ", ttt.roles.Innocent.Color, info.Message, white_text, "\n- ", user:Nick())
 			end
 		end,
@@ -328,6 +328,44 @@ admin.commands = {
 
 				admin.chatf(color_name, user:Nick(), color_text, " warned ", color_name, name(info.Player), color_text, " for ", color_important, info.Reason)
 				return true
+			end
+		end,
+	},
+	afk = {
+		args = {
+			{
+				Name = "Player",
+				Type = "userid",
+			},
+		},
+		Do = function(user, info)
+			local ply = player.GetBySteamID64(info.Player)
+
+			if (IsValid(ply)) then
+				net.Start("pluto-admin-afk")
+				net.WriteBool(true)
+				net.Send(ply)
+
+				admin.chatf(color_name, user:Nick(), color_text, " has forced ", color_name, name(info.Player), color_text, " into spectator mode")
+			end
+		end,
+	},
+	unafk = {
+		args = {
+			{
+				Name = "Player",
+				Type = "userid",
+			},
+		},
+		Do = function(user, info)
+			local ply = player.GetBySteamID64(info.Player)
+
+			if (IsValid(ply)) then
+				net.Start("pluto-admin-afk")
+				net.WriteBool(false)
+				net.Send(ply)
+
+				admin.chatf(color_name, user:Nick(), color_text, " has forced ", color_name, name(info.Player), color_text, " out of spectator mode")
 			end
 		end,
 	},
@@ -379,7 +417,7 @@ local function punishment(n)
 				admin.punish_revoke(n, info.Player, info.Reason, user)
 			end
 
-			admin.chatf(color_name, user:Nick(), color_text, " used " .. n .. " on ", color_name, name(info.Player), color_text, ": ", color_important, info.Reason)
+			admin.chatf(color_name, user:Nick(), color_text, " used un" .. n .. " on ", color_name, name(info.Player), color_text, ": ", color_important, info.Reason)
 			return true
 		end
 	}
