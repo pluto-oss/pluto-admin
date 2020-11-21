@@ -36,16 +36,13 @@ net.Receive("pluto_block", function(len, cl)
 	net.Send(cl)
 end)
 
-hook.Add("TTTRWUpdateVoiceState", "pluto_block", function(ply, cache)
-	if (not admin.blocks[ply]) then
+hook.Add("PlayerCanHearPlayersVoice", "pluto_block", function(listener, speaker)
+	if (not admin.blocks[listener]) then
 		return
 	end
-
-	for oply, blocked in pairs(admin.blocks[ply].Voice) do
-		local other = admin.steamid_cache[oply]
-		if (IsValid(other)) then
-			cache[other] = false
-		end
+	
+	if (admin.blocks[listener].Voice[speaker:SteamID64()]) then
+		return false
 	end
 end)
 
