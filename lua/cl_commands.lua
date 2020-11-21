@@ -11,6 +11,46 @@ net.Receive("pluto-admin-cmd", function(len, cl)
 	chat.AddText(unpack(stuff))
 end)
 
+hook.Add("PlutoGetChatCommand", "pluto_admin_command", function(text)
+	local texts = string.Explode(" ", text)
+	local cmd = table.remove(texts, 1)
+	if (not cmd) then
+		return
+	end
+
+	local cmdtype = admin.commands[cmd]
+	if (not cmdtype) then
+		return
+	end
+
+	local args = {cmd}
+	local current = ""
+	for k, str in ipairs(texts) do
+		if (current == "" and string.StartWith(str, "\"")) then
+			if (string.EndsWith(str, "\"")) then
+				table.insert(args, string.sub(str, 2, #str - 1))
+			else
+				current = string.sub(str, 2)
+			end
+			continue 
+		end
+
+		if (current ~= "") then
+			if (string.EndsWith(str, "\"")) then
+				table.insert(args, current .. " " .. string.sub(str, 1, #str - 1))
+				current = ""
+			else
+				current = current .. " " .. str
+			end
+			continue
+		end
+
+		table.insert(args, str)
+	end
+
+	RunConsoleCommand("admin", unpack(args))
+	return true
+end)
 
 hook.Add("TTTPopulateSettingsMenu", "admin_settings", function()
 	local real_cat = vgui.Create "EditablePanel"
