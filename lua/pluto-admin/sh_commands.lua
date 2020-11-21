@@ -58,6 +58,11 @@ admin.commands = {
 				Name = "Player",
 				Type = "userid",
 			},
+			{
+				Name = "Reason",
+				Type = "string",
+				Optional = true,
+			}
 		},
 		Do = function(user, info)
 			local ply = player.GetBySteamID64(info.Player)
@@ -68,7 +73,7 @@ admin.commands = {
 
 			ply:Kill()
 
-			admin.chatf(color_name, user:Nick(), color_text, " has slain ", color_name, name(info.Player))
+			admin.chatf(color_name, user:Nick(), color_text, " has slain ", color_name, name(info.Player), color_text, " for: ", color_important, info.Reason)
 			return true
 		end,
 	},
@@ -148,6 +153,11 @@ admin.commands = {
 			{
 				Name = "Player",
 				Type = "userid",
+			},
+			{
+				Name = "Reason",
+				Type = "string",
+				Optional = true,
 			}
 		},
 		Do = function(user, info)
@@ -155,7 +165,7 @@ admin.commands = {
 
 			if (IsValid(ply)) then
 				ply.Slays = (ply.Slays or 0) + 1
-				admin.chatf(color_name, user:Nick(), color_text, " ran slaynr on ", color_name, name(info.Player))
+				admin.chatf(color_name, user:Nick(), color_text, " ran slaynr on ", color_name, name(info.Player), color_text, " for: ", color_important, info.Reason)
 				return true
 			end
 		end,
@@ -165,6 +175,11 @@ admin.commands = {
 			{
 				Name = "Player",
 				Type = "userid",
+			},
+			{
+				Name = "Reason",
+				Type = "string",
+				Optional = true,
 			}
 		},
 		Do = function(user, info)
@@ -172,7 +187,7 @@ admin.commands = {
 
 			if (IsValid(ply) and ply.Slays and ply.Slays > 0) then
 				ply.Slays = ply.Slays - 1
-				admin.chatf(color_name, user:Nick(), color_text, " ran rslaynr on ", color_name, name(info.Player))
+				admin.chatf(color_name, user:Nick(), color_text, " ran rslaynr on ", color_name, name(info.Player), color_text, " for: ", color_important, info.Reason)
 				return true
 			end
 		end,
@@ -193,7 +208,7 @@ admin.commands = {
 
 			if (IsValid(ply)) then
 				ply:Kick(info.Reason)
-				admin.chatf(color_name, user:Nick(), color_text, " kicked ", color_name, name(info.Player), color_text, " for ", color_important, info.Reason)
+				admin.chatf(color_name, user:Nick(), color_text, " kicked ", color_name, name(info.Player), color_text, " for: ", color_important, info.Reason)
 				return true
 			end
 		end,

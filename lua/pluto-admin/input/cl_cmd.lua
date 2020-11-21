@@ -8,7 +8,7 @@ concommand.Add("admin", function(ply, cmd, args)
 
 	for i, argtype in ipairs(cmdtype.args) do
 		local arg = admin.args[argtype.Type]
-		if (not args[i + 1]) then
+		if (not args[i + 1] and not argtype.Optional) then
 			print("failed, no " .. argtype.Name:lower())
 			return
 		end
@@ -19,7 +19,7 @@ concommand.Add("admin", function(ply, cmd, args)
 
 	for i, argtype in ipairs(cmdtype.args) do
 		local arg = admin.args[argtype.Type]
-		if (arg:NetworkWrite(args[i + 1])) then
+		if (arg:NetworkWrite(args[i + 1] or argtype.Optional and "No reason given")) then
 			error("error arg " .. i)
 		end
 	end
