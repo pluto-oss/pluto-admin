@@ -369,6 +369,35 @@ admin.commands = {
 			end
 		end,
 	},
+	pm = {
+		args = {
+			{
+				Name = "Player",
+				Type = "userid",
+			},
+			{
+				Name = "Message",
+				Type = "string",
+			},
+		},
+		Do = function(user, info)
+			local ply = player.GetBySteamID64(info.Player)
+
+			if (not info.Message or info.Message == "") then
+				return
+			end
+
+			if (IsValid(ply)) then
+				ply:ChatPrint(white_text, "", ttt.roles.Detective.Color, user:Nick(), white_text, " to ", ttt.roles.Detective.Color, "You", white_text, ": ", ttt.roles.Innocent.Color, info.Message)
+			end
+
+			for _, _ply in ipairs(player.GetAll()) do
+				if (admin.hasperm(_ply:GetUserGroup(), "seepm") and ply ~= _ply) then
+					ply:ChatPrint(white_text, "", ttt.roles.Detective.Color, user:Nick(), white_text, " to ", ttt.roles.Detective.Color, _ply:Nick(), white_text, ": ",ttt.roles.Innocent.Color, info.Message)
+				end
+			end
+		end,
+	}
 }
 
 local function punishment(n)

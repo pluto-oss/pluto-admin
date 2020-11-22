@@ -95,6 +95,7 @@ admin.ranks = {
 			pa = true,
 			warn = true,
 			bypass_max = true,
+			seepm = true,
 		},
 		color = Color(21, 126, 132),
 	},
@@ -109,6 +110,7 @@ admin.ranks = {
 	user = {
 		PrintName = "User",
 		permissions = {
+			pm = true,
 			po = true,
 			playtime = true,
 			--gold = true,
