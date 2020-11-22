@@ -58,6 +58,11 @@ admin.commands = {
 				Name = "Player",
 				Type = "userid",
 			},
+			{
+				Name = "Reason",
+				Type = "string",
+				Optional = true,
+			}
 		},
 		Do = function(user, info)
 			local ply = player.GetBySteamID64(info.Player)
@@ -68,7 +73,7 @@ admin.commands = {
 
 			ply:Kill()
 
-			admin.chatf(color_name, user:Nick(), color_text, " has slain ", color_name, name(info.Player))
+			admin.chatf(color_name, user:Nick(), color_text, " has slain ", color_name, name(info.Player), color_text, " for: ", color_important, info.Reason)
 			return true
 		end,
 	},
@@ -148,6 +153,11 @@ admin.commands = {
 			{
 				Name = "Player",
 				Type = "userid",
+			},
+			{
+				Name = "Reason",
+				Type = "string",
+				Optional = true,
 			}
 		},
 		Do = function(user, info)
@@ -155,7 +165,7 @@ admin.commands = {
 
 			if (IsValid(ply)) then
 				ply.Slays = (ply.Slays or 0) + 1
-				admin.chatf(color_name, user:Nick(), color_text, " ran slaynr on ", color_name, name(info.Player))
+				admin.chatf(color_name, user:Nick(), color_text, " ran slaynr on ", color_name, name(info.Player), color_text, " for: ", color_important, info.Reason)
 				return true
 			end
 		end,
@@ -165,6 +175,11 @@ admin.commands = {
 			{
 				Name = "Player",
 				Type = "userid",
+			},
+			{
+				Name = "Reason",
+				Type = "string",
+				Optional = true,
 			}
 		},
 		Do = function(user, info)
@@ -172,7 +187,7 @@ admin.commands = {
 
 			if (IsValid(ply) and ply.Slays and ply.Slays > 0) then
 				ply.Slays = ply.Slays - 1
-				admin.chatf(color_name, user:Nick(), color_text, " ran rslaynr on ", color_name, name(info.Player))
+				admin.chatf(color_name, user:Nick(), color_text, " ran rslaynr on ", color_name, name(info.Player), color_text, " for: ", color_important, info.Reason)
 				return true
 			end
 		end,
@@ -193,7 +208,7 @@ admin.commands = {
 
 			if (IsValid(ply)) then
 				ply:Kick(info.Reason)
-				admin.chatf(color_name, user:Nick(), color_text, " kicked ", color_name, name(info.Player), color_text, " for ", color_important, info.Reason)
+				admin.chatf(color_name, user:Nick(), color_text, " kicked ", color_name, name(info.Player), color_text, " for: ", color_important, info.Reason)
 				return true
 			end
 		end,
@@ -271,7 +286,7 @@ admin.commands = {
 		},
 		Do = function(user, info)
 			local rank = admin.ranks[user:GetUserGroup()]
-			if (rank) then
+			if (rank and info.Message and info.Message ~= "") then
 				admin.chatf(white_text, "[", rank.color, rank.PrintName, white_text, "]: ", ttt.roles.Innocent.Color, info.Message, white_text, "\n- ", user:Nick())
 			end
 		end,
@@ -316,6 +331,73 @@ admin.commands = {
 			end
 		end,
 	},
+	afk = {
+		args = {
+			{
+				Name = "Player",
+				Type = "userid",
+			},
+		},
+		Do = function(user, info)
+			local ply = player.GetBySteamID64(info.Player)
+
+			if (IsValid(ply)) then
+				net.Start("pluto-admin-afk")
+				net.WriteBool(true)
+				net.Send(ply)
+
+				admin.chatf(color_name, user:Nick(), color_text, " has forced ", color_name, name(info.Player), color_text, " into spectator mode")
+			end
+		end,
+	},
+	unafk = {
+		args = {
+			{
+				Name = "Player",
+				Type = "userid",
+			},
+		},
+		Do = function(user, info)
+			local ply = player.GetBySteamID64(info.Player)
+
+			if (IsValid(ply)) then
+				net.Start("pluto-admin-afk")
+				net.WriteBool(false)
+				net.Send(ply)
+
+				admin.chatf(color_name, user:Nick(), color_text, " has forced ", color_name, name(info.Player), color_text, " out of spectator mode")
+			end
+		end,
+	},
+	pm = {
+		args = {
+			{
+				Name = "Player",
+				Type = "userid",
+			},
+			{
+				Name = "Message",
+				Type = "string",
+			},
+		},
+		Do = function(user, info)
+			local ply = player.GetBySteamID64(info.Player)
+
+			if (not info.Message or info.Message == "") then
+				return
+			end
+
+			if (IsValid(ply)) then
+				ply:ChatPrint(white_text, "", ttt.roles.Detective.Color, user:Nick(), white_text, " to ", ttt.roles.Detective.Color, "You", white_text, ": ", ttt.roles.Innocent.Color, info.Message)
+			end
+
+			for _, _ply in ipairs(player.GetAll()) do
+				if (admin.hasperm(_ply:GetUserGroup(), "seepm") and ply ~= _ply) then
+					ply:ChatPrint(white_text, "", ttt.roles.Detective.Color, user:Nick(), white_text, " to ", ttt.roles.Detective.Color, _ply:Nick(), white_text, ": ",ttt.roles.Innocent.Color, info.Message)
+				end
+			end
+		end,
+	}
 }
 
 local function punishment(n)
@@ -364,7 +446,7 @@ local function punishment(n)
 				admin.punish_revoke(n, info.Player, info.Reason, user)
 			end
 
-			admin.chatf(color_name, user:Nick(), color_text, " used " .. n .. " on ", color_name, name(info.Player), color_text, ": ", color_important, info.Reason)
+			admin.chatf(color_name, user:Nick(), color_text, " used un" .. n .. " on ", color_name, name(info.Player), color_text, ": ", color_important, info.Reason)
 			return true
 		end
 	}
