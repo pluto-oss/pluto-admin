@@ -387,13 +387,14 @@ admin.commands = {
 				return
 			end
 
-			if (IsValid(ply)) then
-				ply:ChatPrint(white_text, "", ttt.roles.Detective.Color, user:Nick(), white_text, " to ", ttt.roles.Detective.Color, "You", white_text, ": ", ttt.roles.Innocent.Color, info.Message)
+			if (IsValid(ply) and IsValid(user)) then
+				ply:ChatPrint(ttt.roles.Detective.Color, user:Nick(), white_text, " to ", ttt.roles.Detective.Color, "You", white_text, ": ", ttt.roles.Innocent.Color, info.Message)
+				user:ChatPrint(ttt.roles.Detective.Color, "You", white_text, " to ", ttt.roles.Detective.Color, ply:Nick(), white_text, ": ", ttt.roles.Innocent.Color, info.Message)
 			end
 
 			for _, _ply in ipairs(player.GetAll()) do
 				if (admin.hasperm(_ply:GetUserGroup(), "seepm") and ply ~= _ply) then
-					ply:ChatPrint(white_text, "", ttt.roles.Detective.Color, user:Nick(), white_text, " to ", ttt.roles.Detective.Color, _ply:Nick(), white_text, ": ",ttt.roles.Innocent.Color, info.Message)
+					ply:ChatPrint(ttt.roles.Detective.Color, user:Nick(), white_text, " sent to ", ttt.roles.Detective.Color, _ply:Nick(), white_text, ": ",ttt.roles.Innocent.Color, info.Message)
 				end
 			end
 		end,
