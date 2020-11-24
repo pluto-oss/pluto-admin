@@ -393,7 +393,7 @@ admin.commands = {
 			end
 
 			for _, _ply in ipairs(player.GetAll()) do
-				if (admin.hasperm(_ply:GetUserGroup(), "seepm") and ply ~= _ply) then
+				if (admin.hasperm(_ply:GetUserGroup(), "seepm") and ply ~= _ply and ply ~= user) then
 					_ply:ChatPrint(ttt.roles.Detective.Color, user:Nick(), white_text, " sent to ", ttt.roles.Detective.Color, ply:Nick(), white_text, ": ",ttt.roles.Innocent.Color, info.Message)
 				end
 			end
