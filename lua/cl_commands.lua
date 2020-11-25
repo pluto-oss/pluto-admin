@@ -130,3 +130,37 @@ hook.Add("TTTPopulateSettingsMenu", "admin_settings", function()
 
 	ttt.settings:AddTab("Admin", real_cat)
 end)
+
+timer.Simple(5, function()
+	if (pluto and pluto.chat and pluto.chat.cl_commands) then
+		for _, cmd in ipairs(pluto.chat.cl_commands) do
+			if (not cmd.aliases or cmd.aliases[1] ~= "commands") then
+				continue
+			end
+
+			if (not admin or not admin.commands) then
+				return
+			end
+
+			local commands = {}
+
+			for name, cmd in pairs(admin.commands) do
+				table.insert(commands, ttt.roles.Traitor.Color)
+				table.insert(commands, name)
+				table.insert(commands, white_text)
+				table.insert(commands, ", ")
+			end
+
+			table.remove(commands)
+
+			local old = cmd.Run
+
+			cmd.Run = function(channel)
+				old(channel)
+
+				chat.AddText("Here is a list of all ", ttt.roles.Traitor.Color, "admin ", white_text, "commands:")
+				chat.AddText(unpack(commands))
+			end
+		end
+	end
+end)
