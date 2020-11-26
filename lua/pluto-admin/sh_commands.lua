@@ -52,6 +52,14 @@ local function timename(playtime)
 end
 
 admin.commands = {
+	mapvote = {
+		args = {},
+		Do = function(user)
+			hook.Add("TTTEndRound", "mapvote_start", pluto.mapvote.start)
+			admin.chatf(color_name, user:Nick(), color_text, " has forced a mapvote at the end of the round")
+			return true
+		end
+	},
 	slay = {
 		args = {
 			{

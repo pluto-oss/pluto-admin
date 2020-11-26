@@ -57,6 +57,8 @@ admin.ranks = {
 			unafk = true,
 			unban = true,
 			gold = true,
+			tradelogs = true,
+			mapvote = true,
 		},
 		color = Color(99, 117, 36),
 	},
