@@ -124,7 +124,8 @@ admin.ranks = {
 			po = true,
 			playtime = true,
 			--gold = true,
-		}
+		},
+		color = Color(233, 240, 238)
 	},
 }
 
