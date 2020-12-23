@@ -178,6 +178,33 @@ admin.commands = {
 			end
 		end,
 	},
+	boostmap = {
+		args = {
+			{
+				Name = "Map",
+				Type = "string",
+			}
+		},
+		Do = function(user, info)
+			if (pluto.mapvote.blacklisted[info.Map]) then
+				user:ChatPrint "That map was played too recently."
+				return
+			end
+			if (not table.HasValue(pluto.GetValidMaps(), info.Map)) then
+				user:ChatPrint "That map cannot be played."
+				return
+			end
+
+			if (not pluto.mapvote.boost(info.Map)) then
+				user:ChatPrint "You cannot boost that map."
+				return
+			end
+
+			admin.chatf(color_name, user:Nick(), color_text, " boosted ", color_important, info.Map)
+
+			return true
+		end,
+	},
 	rslaynr = {
 		args = {
 			{

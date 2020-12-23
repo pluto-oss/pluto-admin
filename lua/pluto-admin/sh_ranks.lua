@@ -81,7 +81,7 @@ admin.ranks = {
 	},
 	supportstaff = {
 		PrintName = "Support Staff",
-		inherits = "user",
+		inherits = "donator",
 		aliases = {
 			"ss",
 			"sstaff",
@@ -113,7 +113,7 @@ admin.ranks = {
 		PrintName = "Donator",
 		inherits = "user",
 		permissions = {
-			votemap = true,
+			boostmap = true,
 		},
 		color = Color(0, 176, 18),
 	},
