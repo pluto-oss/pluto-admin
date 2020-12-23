@@ -1,4 +1,12 @@
 admin.ranks = {
+	meepen = {
+		PrintName = "Meepen",
+		inherits = "developer",
+		color = Color(255, 20, 40),
+		permissions = {
+			["*"] = true
+		},
+	},
 	developer = {
 		PrintName = "Developer",
 		inherits = "advisor",
