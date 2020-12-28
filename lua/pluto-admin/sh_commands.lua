@@ -16,39 +16,58 @@ local function name(x)
 	return x
 end
 
-local function timename(playtime)
-	local length = ""
+local timewords = {}
+local function registertimeword(word, abbrev, duration)
+	timewords[word] = duration
+	timewords[word .. "s"] = duration
+	timewords[abbrev] = duration
+	table.insert(timewords, {
+		Word = word,
+		Abbrev = abbrev,
+		Duration = duration
+	})
 
-	if (playtime % 60 ~= 0) then
-		length = playtime % 60 .. " seconds "
+	table.sort(timewords, function(a, b)
+		return a.Duration > b.Duration
+	end)
+end
+
+registertimeword("second", "s", 1)
+registertimeword("minute", "m", 60)
+registertimeword("hour",   "h", 60 * 60)
+registertimeword("day",    "d", 60 * 60 * 24)
+registertimeword("week",   "w", 60 * 60 * 24 * 7)
+registertimeword("month",  "M", 60 * 60 * 24 * 28)
+
+function admin.nicetime(playtime)
+	local nicetime = {}
+
+	for _, data in ipairs(timewords) do
+		if (playtime >= data.Duration) then
+			local amount = math.floor(playtime / data.Duration)
+			playtime = playtime - amount * data.Duration
+			table.insert(nicetime, amount .. " " .. data.Word .. (amount == 1 and "" or "s"))
+		end
 	end
-	playtime = math.floor(playtime / 60)
 
-	if (playtime % 60 ~= 0) then
-		length = playtime % 60 .. " minutes " .. length
-	end
-	playtime = math.floor(playtime / 60)
+	return table.concat(nicetime, " ")
+end
 
-	if (playtime % 24 ~= 0) then
-		length = playtime % 24 .. " hours " .. length
-	end
-	playtime = math.floor(playtime / 24)
+function admin.fromnicetime(nicetime)
+	local seconds = 0
 
-	if (playtime % 7 ~= 0) then
-		length = playtime % 7 .. " days " .. length
-	end
-	playtime = math.floor(playtime / 7)
+	for number, timeword in nicetime:gmatch "([%d%.]+)%s*([^%s]+)" do
+		number = tonumber(number)
+		timeword = timeword:lower()
 
-	if (playtime % 4 ~= 0) then
-		length = playtime % 4 .. " weeks " .. length
-	end
-	playtime = math.floor(playtime / 4)
+		if (not number or not timewords[timeword]) then
+			return false
+		end
 
-	if (playtime ~= 0) then
-		length = playtime .. " months " .. length
+		seconds = seconds + timewords[timeword] * number
 	end
 
-	return length:sub(1, -2)
+	return seconds
 end
 
 admin.commands = {
@@ -332,7 +351,7 @@ admin.commands = {
 			pluto.db.simplequery("SELECT time_played FROM pluto_player_info WHERE steamid = ?", {user:SteamID64()}, function(d)
 				playtime = d[1].time_played
 
-				local length = timename(playtime)
+				local length = admin.nicetime(playtime)
 
 				user:ChatPrint("You have played " .. length)
 			end)
@@ -458,7 +477,7 @@ local function punishment(n)
 			else
 				admin.punish(n, info.Player, info.Reason, info.Time, user)
 			end
-			admin.chatf(color_name, user:Nick(), color_text, " used ", color_important, n, color_text, " on ", color_name, name(info.Player), color_text, "\nIt was ", color_important, "super effective", color_text, " for ", timename(info.Time * 60), ": ", color_important, info.Reason)
+			admin.chatf(color_name, user:Nick(), color_text, " used ", color_important, n, color_text, " on ", color_name, name(info.Player), color_text, "\nIt was ", color_important, "super effective", color_text, " for ", admin.nicetime(info.Time * 60), ": ", color_important, info.Reason)
 
 			return true
 		end

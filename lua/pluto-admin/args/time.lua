@@ -11,6 +11,15 @@ local function GetData(text)
 		}
 	end
 
+	if (admin.fromnicetime(text)) then
+		return {
+			{
+				Friendly = admin.nicetime(admin.fromnicetime(text)),
+				Time = math.floor(admin.fromnicetime(text) / 60)
+			}
+		}
+	end
+
 	return {}
 end
 
