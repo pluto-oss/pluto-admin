@@ -266,6 +266,10 @@ hook.Add("CheckPassword", "pluto_bans", function(sid)
 end)
 
 hook.Add("PlayerSay", "pluto_mutes", function(s)
+	if (s.InRadioChat) then
+		return
+	end
+
 	local mute = s.Punishments and s.Punishments.mute
 
 	if (mute and mute.Ending > os.time()) then
