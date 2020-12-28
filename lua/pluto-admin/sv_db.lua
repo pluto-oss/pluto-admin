@@ -273,7 +273,7 @@ hook.Add("PlayerSay", "pluto_mutes", function(s)
 	local mute = s.Punishments and s.Punishments.mute
 
 	if (mute and mute.Ending > os.time()) then
-		s:ChatPrint(color_text, "You are ", color_important, "muted ", color_text, "for ", color_name, admin.nicetime(mute.Ending - os.time()), color_text, " more seconds because: ", color_important, mute.Reason)
+		s:ChatPrint(color_text, "You are ", color_important, "muted ", color_text, "for ", color_name, admin.nicetime(mute.Ending - os.time()), color_text, " because: ", color_important, mute.Reason)
 		return false
 	end
 end)
@@ -283,7 +283,7 @@ hook.Add("PlayerCanHearPlayersVoice", "pluto_gags", function(_, s)
 
 	if (mute and mute.Ending > os.time()) then
 		if (not mute.NextNotif or mute.NextNotif < CurTime()) then
-			s:ChatPrint(color_text, "You are ", color_important, "gagged ", color_text, "for ", color_name, admin.nicetime(mute.Ending - os.time()), color_text, " more seconds because: ", color_important, mute.Reason)
+			s:ChatPrint(color_text, "You are ", color_important, "gagged ", color_text, "for ", color_name, admin.nicetime(mute.Ending - os.time()), color_text, " because: ", color_important, mute.Reason)
 			mute.NextNotif = CurTime() + 20
 		end
 		return false
