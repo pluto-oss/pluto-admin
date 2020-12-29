@@ -214,7 +214,7 @@ admin.commands = {
 				return
 			end
 
-			if (not pluto.mapvote.boost(info.Map)) then
+			if (not pluto.mapvote.boost(info.Map, user)) then
 				user:ChatPrint "You cannot boost that map."
 				return
 			end
