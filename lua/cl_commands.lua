@@ -54,7 +54,7 @@ hook.Add("PlutoGetChatCommand", "pluto_admin_command", function(text)
 			continue
 		end
 
-		if (#args == argnum) then
+		if (#args == argnum and k ~= #texts) then
 			current = str
 			continue
 		end
