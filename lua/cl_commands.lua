@@ -27,6 +27,8 @@ hook.Add("PlutoGetChatCommand", "pluto_admin_command", function(text)
 		return
 	end
 
+	local argnum = #cmdtype.args
+
 	local args = {cmd}
 	local current = ""
 	for k, str in ipairs(texts) do
@@ -46,6 +48,14 @@ hook.Add("PlutoGetChatCommand", "pluto_admin_command", function(text)
 			else
 				current = current .. " " .. str
 			end
+			if (k == #texts) then
+				table.insert(args, current)
+			end
+			continue
+		end
+
+		if (#args == argnum) then
+			current = str
 			continue
 		end
 
