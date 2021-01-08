@@ -366,6 +366,10 @@ admin.commands = {
 				Type = "userid",
 			},
 			{
+				Name = "Time",
+				Type = "time",
+			},
+			{
 				Name = "Reason",
 				Type = "string",
 			}
@@ -374,7 +378,7 @@ admin.commands = {
 			local ply = player.GetBySteamID64(info.Player)
 
 			if (IsValid(ply)) then
-				pluto.db.simplequery("CALL pluto_warn(?, ?, ?)", {ply:SteamID64(), user:SteamID64(), info.Reason}, function(d, err)
+				pluto.db.simplequery("CALL pluto_timewarn(?, ?, ?, ?)", {ply:SteamID64(), user:SteamID64(), info.Reason, info.Time}, function(d, err)
 					if (not d) then
 						pwarnf("pluto_warn err: %s", err)
 					end

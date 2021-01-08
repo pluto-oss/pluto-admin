@@ -97,6 +97,16 @@ hook.Add("PlutoDatabaseInitialize", "pluto_admin_init", function()
 				CALL pluto_punish('warn', user, actor, _reason, 0);
 			END
 		]])
+		mysql_query(db, [[
+			CREATE PROCEDURE IF NOT EXISTS pluto_timewarn (
+				user BIGINT UNSIGNED,
+				actor BIGINT UNSIGNED,
+				_reason VARCHAR(255),
+				seconds INT UNSIGNED
+			) BEGIN
+				CALL pluto_punish('warn', user, actor, _reason, seconds);
+			END
+		]])
 	end)
 end)
 
@@ -279,12 +289,12 @@ hook.Add("PlayerSay", "pluto_mutes", function(s)
 end)
 
 hook.Add("PlayerCanHearPlayersVoice", "pluto_gags", function(_, s)
-	local mute = s.Punishments and s.Punishments.gag
+	local gag = s.Punishments and s.Punishments.gag
 
-	if (mute and mute.Ending > os.time()) then
-		if (not mute.NextNotif or mute.NextNotif < CurTime()) then
-			s:ChatPrint(color_text, "You are ", color_important, "gagged ", color_text, "for ", color_name, admin.nicetime(mute.Ending - os.time()), color_text, " because: ", color_important, mute.Reason)
-			mute.NextNotif = CurTime() + 20
+	if (gag and gag.Ending > os.time()) then
+		if (not gag.NextNotif or gag.NextNotif < CurTime()) then
+			s:ChatPrint(color_text, "You are ", color_important, "gagged ", color_text, "for ", color_name, admin.nicetime(gag.Ending - os.time()), color_text, " because: ", color_important, gag.Reason)
+			gag.NextNotif = CurTime() + 20
 		end
 		return false
 	end
