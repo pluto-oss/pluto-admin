@@ -452,7 +452,39 @@ admin.commands = {
 				end
 			end
 		end,
-	}
+	},
+	badge = {
+		args = {
+			{
+				Name = "Action",
+				Type = "string",
+			},
+			{
+				Name = "Player",
+				Type = "string",
+			},
+			{
+				Name = "Badge",
+				Type = "string",
+			},
+		},
+		Do = function(user, info)
+			local ply = info.Player and player.GetBySteamID64(info.Player) or user
+
+			if (not info.Badge or info.Badge == "") then
+				return
+			end
+
+			if (info.Action == "add") then
+				return ply:AwardBadge(info.Badge)
+			elseif (info.Action == "remove") then
+				return ply:RemoveBadge(info.Badge)
+			else
+				admin.chatf(ttt.roles.Traitor.Color, info.Action, white_text, " is an invalid Action!")
+				return
+			end
+		end,
+	},
 }
 
 local function punishment(n)

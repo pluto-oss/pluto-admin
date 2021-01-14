@@ -17,6 +17,7 @@ admin.ranks = {
 		permissions = {
 			setrank = "developer",
 			ac = true,
+			badge = true,
 		},
 	},
 	designer = {
@@ -143,6 +144,11 @@ hook.Add("TTTGetRankPrintName", "pluto_admin", function(rank)
 	if (rank and rank.PrintName) then
 		return rank.PrintName
 	end
+end)
+
+hook.Add("PlutoRegisterBadge", "StaffBadges", function(register)
+	register("staff", "Staff", "shield_idk")
+	register("dev", "Developer", "cog_idk")
 end)
 
 function admin.hasperm(usergroup, perm)
