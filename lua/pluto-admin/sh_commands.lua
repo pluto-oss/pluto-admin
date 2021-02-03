@@ -53,6 +53,20 @@ function admin.nicetime(playtime)
 	return table.concat(nicetime, " ")
 end
 
+function admin.nicetimeshort(playtime)
+	local nicetime = {}
+
+	for _, data in ipairs(timewords) do
+		if (playtime >= data.Duration) then
+			local amount = math.floor(playtime / data.Duration)
+			playtime = playtime - amount * data.Duration
+			table.insert(nicetime, amount .. data.Abbrev)
+		end
+	end
+
+	return table.concat(nicetime, " ")
+end
+
 function admin.fromnicetime(nicetime)
 	local seconds = 0
 
