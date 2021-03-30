@@ -470,6 +470,33 @@ admin.commands = {
 				end
 			end
 		end,
+	},
+	karma = {
+		args = {
+			{
+				Name = "Player",
+				Type = "userid",
+			},
+			{
+				Name = "Karma",
+				Type = "int",
+			}
+		},
+		Do = function(user, info)
+			local ply = player.GetBySteamID64(info.Player)
+			local max_karma = GetConVar "ttt_karma_max":GetInt()
+			local karma = math.Clamp(info.Karma or max_karma, 0, max_karma)
+
+			if (IsValid(ply)) then
+				ply:SetRealKarma(karma)
+				ply:SetKarma(karma)
+
+				user:ChatPrint("You set the karma of ", ttt.roles.Detective.Color, ply:Nick(), white_text, " to ", ttt.roles.Innocent.Color, karma)
+				if (user ~= ply) then
+					ply:ChatPrint(ttt.roles.Detective.Color, user:Nick(), white_text, " has set your karma to ", ttt.roles.Innocent.Color, karma)
+				end
+			end
+		end,
 	}
 }
 
