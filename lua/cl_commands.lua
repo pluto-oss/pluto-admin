@@ -83,6 +83,10 @@ hook.Add("TTTPopulateSettingsMenu", "admin_settings", function()
 
 	local done = false
 	for cmd, data in SortedPairs(admin.commands) do
+		if (not admin.hasperm(LocalPlayer():GetUserGroup(), cmd)) then
+			continue
+		end
+
 		local btn = cat.Commands:AddButton(cmd, function()
 
 			if (IsValid(cat.Args)) then
@@ -95,7 +99,8 @@ hook.Add("TTTPopulateSettingsMenu", "admin_settings", function()
 			cat.Args:Dock(FILL)
 
 			local run = cat.Args:AddLabelButton("Run " .. cmd)
-			run:DockMargin(0, 0, 0, 0)
+			run:DockMargin(0, 16, 0, 0)
+			run:SetTall(run:GetTall() + 12)
 
 			function run:DoClick()
 				local args = {
@@ -139,6 +144,30 @@ hook.Add("TTTPopulateSettingsMenu", "admin_settings", function()
 	end
 
 	ttt.settings:AddTab("Admin", real_cat)
+end)
+
+hook.Add("TTTRWPopulateScoreboardOptions", "admin_commands", function(menu, ply)
+	local coms = menu:AddSubMenu "Admin"
+
+	for cmd, data in SortedPairs(admin.commands) do
+		if (not admin.hasperm(LocalPlayer():GetUserGroup(), cmd)) then
+			continue
+		end
+
+		if (not data.args or not data.args[1] or not data.args[1].Name or data.args[1].Name ~= "Player") then
+			continue
+		end
+
+		coms:AddOption(cmd, function()
+			if (IsValid(admin.quickmenu)) then
+				return
+			end
+
+			admin.quickmenu = vgui.Create "pluto_admin_quickmenu"
+
+			admin.quickmenu:AddCommand(cmd, data, ply)
+		end)
+	end
 end)
 
 timer.Simple(5, function()

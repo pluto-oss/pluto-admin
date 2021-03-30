@@ -64,6 +64,7 @@ loadall {
 		"input/cl_cmd.lua",
 		"cl_commands.lua",
 		"block/cl_block.lua",
+		"vgui/quickmenu.lua",
 	},
 	Resources = {
 
