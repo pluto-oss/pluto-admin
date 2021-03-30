@@ -51,6 +51,7 @@ loadall {
 		"args/userid.lua",
 		"args/time.lua",
 		"args/cmd.lua",
+		"args/int.lua",
 		"sh_commands.lua",
 		"input/sh_chat.lua",
 	},

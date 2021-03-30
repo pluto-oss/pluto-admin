@@ -106,6 +106,7 @@ admin.ranks = {
 			warn = true,
 			bypass_max = true,
 			seepm = true,
+			karma = true,
 		},
 		color = Color(21, 126, 132),
 	},
