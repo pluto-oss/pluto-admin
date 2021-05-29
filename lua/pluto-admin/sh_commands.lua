@@ -50,7 +50,7 @@ function admin.nicetime(playtime)
 		end
 	end
 
-	return table.concat(nicetime, " ")
+	return table.concat(nicetime, ", ")
 end
 
 function admin.nicetimeshort(playtime)
@@ -64,7 +64,7 @@ function admin.nicetimeshort(playtime)
 		end
 	end
 
-	return table.concat(nicetime, " ")
+	return table.concat(nicetime, ", ")
 end
 
 function admin.fromnicetime(nicetime)
